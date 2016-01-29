@@ -5,11 +5,7 @@ print ("ESP8266 Starting...");
 
 cfg={
 	wifi= "WifiName",
-<<<<<<< HEAD
 	wifipass="wifipassword", 
-=======
-	wifipass="wifipass", 
->>>>>>> recover_www
 	--device_id='DOIT-SN-851A-73814',
 	--device_key='e14b22b5b29bceba4e8389f2a1182763',	
 	--server_addr='s.doit.am',
@@ -42,11 +38,7 @@ end
 
 function initWifi ()
 	wifi.setmode(wifi.STATION);
-<<<<<<< HEAD
-	wifi.sta.config(cfg.wifi, cfgwifipass);
-=======
 	wifi.sta.config(cfg.wifi, cfg.wifipass);
->>>>>>> recover_www
 	ip = wifi.sta.getip();
 end
 
