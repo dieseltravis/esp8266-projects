@@ -4,8 +4,8 @@ print ("\n");
 print ("ESP8266 Starting...");
 
 cfg={
-	wifi= "Hardiman",
-	wifipass="wifipassword", 
+	wifi= "WifiName",
+	wifipass="wifipass", 
 	--device_id='DOIT-SN-851A-73814',
 	--device_key='e14b22b5b29bceba4e8389f2a1182763',	
 	--server_addr='s.doit.am',
@@ -38,7 +38,7 @@ end
 
 function initWifi ()
 	wifi.setmode(wifi.STATION);
-	wifi.sta.config(cfg.wifi, cfgwifipass);
+	wifi.sta.config(cfg.wifi, cfg.wifipass);
 	ip = wifi.sta.getip();
 end
 
