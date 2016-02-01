@@ -19,7 +19,6 @@ ip = wifi.sta.getip()
 print(ip)
 
 print("Compiling...")
---TODO: test for www.lc file first?
 node.compile("www.lua")
 
 print("Running...")
