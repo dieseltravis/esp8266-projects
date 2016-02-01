@@ -17,14 +17,13 @@ cfg = {
 wifi.setmode(wifi.STATION)
 wifi.sta.config(cfg.ssid, cfg.password)
 ip = nil
-wifi.sta.connect()
 
 -- set timer to wait for an IP address
 tmr.alarm(0, 1000, 1, function()
     print("wifi status: "..wifi.sta.status())
-    ip = wifi.sta.getip() 
+    ip = wifi.sta.getip()
     if ip == nil then
-        print("connecting...") 
+        print("connecting...")
     else
         -- IP isn't nil, stop timer
         tmr.stop(0)

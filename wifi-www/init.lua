@@ -1,30 +1,43 @@
 print("\n")
 print("ESP8266 Started.")
 
+-- print out some debugging info:
 majorVer, minorVer, devVer, chipid, flashid, flashsize, flashmode, flashspeed = node.info();
 print("NodeMCU "..majorVer.."."..minorVer.."."..devVer)
 print("Chip "..chipid)
 print("Flash "..flashid.." size:"..flashsize.." mode:"..flashmode.." speed:"..flashspeed)
 
 print("Configuring wifi...")
+-- set the ssid and password to the values for the network that you are connecting to
 cfg = {
     ssid = "WifiName",
-    password = "wifipassword"
+    password = "WifiPassword"
 }
 
 wifi.setmode(wifi.STATION)
 wifi.sta.config(cfg.ssid, cfg.password)
-ip = wifi.sta.getip()
+ip = nil
 
-print(ip)
+-- set timer to wait for an IP address
+tmr.alarm(0, 1000, 1, function()
+    print("wifi status: "..wifi.sta.status())
+    ip = wifi.sta.getip()
+    if ip == nil then
+        print("connecting...")
+    else
+        -- IP isn't nil, stop timer
+        tmr.stop(0)
 
-print("Compiling...")
-node.compile("www.lua")
+        print('ip: ', ip)
 
-print("Running...")
-dofile("www.lc")
+        -- compile and execute www code
+        print("Compiling...")
+        node.compile("www.lua")
 
-print("Open this URL in a browser: ")
-print("http://"..ip.."/")
+        print("Running...")
+        dofile("www.lc")
 
---TODO: blink LED
+        print("Open this URL in a browser: ")
+        print("http://"..ip.."/")
+    end
+end)
