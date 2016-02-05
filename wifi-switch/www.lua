@@ -1,22 +1,23 @@
 -- www.lua
 www = net.createServer(net.TCP)
+isOn = 1
 
 www:listen(80, function(sock)
   sock:on("receive", function(client, request)
     print(request)
     
-    -- if GET:
+    local method = string.sub(request, 1, 4)
     -- debugging info?
     -- determine selected ON/OFF
-    
-    sock:send("HTTP/1.1 200 OK\n"..
+    if method == "GET " then
+      sock:send("HTTP/1.1 200 OK\n"..
 "Server: ESP8266 Webserver\n"..
 "Connection: close\n"..
 "Access-Control-Allow-Origin: *\n"..
 "Content-Type: text/html\n"..
 "\n")
 
-    sock:send("<!doctype html>\n"..
+      sock:send("<!doctype html>\n"..
 "<html lang='en'>\n"..
 "<head>\n"..
 "<meta charset='utf-8' />\n"..
@@ -57,11 +58,37 @@ www:listen(80, function(sock)
 "</html>\n"..
 "")
 
-    -- if POST
-    -- read toggle from data
-    -- set pin value based on toggle
-    -- return JSON
-    
+	  elseif method == "POST" then
+      -- read toggle from data
+      local postparse = {string.find(request, "toggle=")}
+      local toggle = string.sub(request, postparse[2] + 1, #request)
+      
+      -- set pin value based on toggle
+      if toggle == "on" then
+        isOn = 1
+        --TODO: turn pin on
+      elseif toggle == "off" then
+        isOn = 0
+        --TODO: turn pin off
+      end
+      
+      -- return JSON
+      sock:send("HTTP/1.1 200 OK\n"..
+"Server: ESP8266 Webserver\n"..
+"Connection: close\n"..
+"Access-Control-Allow-Origin: *\n"..
+"Content-Type: text/json\n"..
+"\n"..
+'{"OK":true,"toggle":"'..toggle..'"}\n'..
+"")
+    else
+      -- error
+      sock:send("HTTP/1.1 501 Not Implemented\n"..
+"Server: ESP8266 Webserver\n"..
+"Connection: close\n"..
+"Access-Control-Allow-Origin: *\n"
+    end
+  
     client:close()
     collectgarbage()
   end)
