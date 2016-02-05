@@ -41,13 +41,13 @@ www:listen(80, function(sock)
 "		<label>\n"..
 "			<input type='radio' name='toggle' value='on' autocomplete='off' "..
 			""..
-"			"/>\n"..
+			"/>\n"..
 "			<span>On</span>\n"..
 "		</label>\n"..
 "		<label>\n"..
 "		  <input type='radio' name='toggle' value='off' autocomplete='off' "..
 		  ""..
-"		  />\n"..
+		  "/>\n"..
 "		  <span>Off</span>\n"..
 "		</label>\n"..
 "		<noscript><input type='submit' value='Switch' /></noscript>\n"..
