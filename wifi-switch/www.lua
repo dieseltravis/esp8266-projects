@@ -56,6 +56,11 @@ www:listen(80, function(sock)
 "</body>\n"..
 "</html>\n"..
 "")
+
+    -- if POST
+    -- read toggle from data
+    -- set pin value based on toggle
+    -- return JSON
     
     client:close()
     collectgarbage()
