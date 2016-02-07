@@ -1,4 +1,4 @@
--- www.lua
+-- main.lua
 
 HTTP_HEADERS = "Server: ESP8266 Webserver\n"..
 "Connection: close\n"..
