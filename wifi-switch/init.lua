@@ -10,10 +10,10 @@ print("Flash "..flashid.." size:"..flashsize.." mode:"..flashmode.." speed:"..fl
 print("Configuring wifi...")
 -- set the ssid and password to the values for the network that you are connecting to
 cfg = {
-    ssid = "WifiName",
-    password = "WifiPassword"
+  ssid = "WifiName",
+  password = "WifiPassword"
 }
-
+                 
 wifi.setmode(wifi.STATION)
 wifi.sta.config(cfg.ssid, cfg.password)
 ip = nil
