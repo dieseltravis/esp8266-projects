@@ -13,7 +13,7 @@ cfg = {
   ssid = "WifiName",
   password = "WifiPassword"
 }
-                 
+
 wifi.setmode(wifi.STATION)
 wifi.sta.config(cfg.ssid, cfg.password)
 ip = nil
