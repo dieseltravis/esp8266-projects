@@ -37,9 +37,29 @@ end
 
 
 function initWifi ()
-	wifi.setmode(wifi.STATION);
-	wifi.sta.config(cfg.wifi, cfg.wifipass);
-	ip = wifi.sta.getip();
+  -- set timer to wait for an IP address
+  tmr.alarm(0, 1000, 1, function()
+    print("wifi status: "..wifi.sta.status())
+    ip = wifi.sta.getip()
+    if ip == nil then
+      print("connecting...")
+    else
+      -- IP isn't nil, stop timer
+      tmr.stop(0)
+  
+      print('ip: ', ip)
+  
+      -- compile and execute main code
+      --print("Compiling...")
+      --node.compile("main.lua")
+  
+      --print("Running...")
+      --dofile("main.lc")
+  
+      --print("Open this URL in a browser: ")
+      --print("http://"..ip.."/")
+    end
+  end)
 end
 
 function webServer()
