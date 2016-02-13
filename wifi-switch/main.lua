@@ -43,7 +43,9 @@ www:listen(PORT, function(sock)
         "<head>\n"..
         "<meta charset='utf-8' />\n"..
         "<meta name='viewport' content='width=device-width' />\n"..
-        "<link rel='icon' href='data:image/x-icon;,' type='image/x-icon' />\n"..
+        "<link rel='icon' href='data:image/png;base64,"..
+        "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC"..
+        "' type='image/x-png' />\n"..
         "<title>esp8266 light switch</title>\n"..
         "<!-- \n"..
         ""..
