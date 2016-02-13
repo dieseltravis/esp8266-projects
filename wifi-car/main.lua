@@ -34,7 +34,12 @@ www:listen(PORT, function(sock)
 "' type='image/x-png' />\n"..
 "<title>esp8266 car</title>\n"..
 "<style type='text/css'>\n"..
-"/* todo  */\n"..
+"html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;height:100%;margin:0;padding:0}\n"..
+"form{position:relative}\n"..
+"button{display:inline-block;box-sizing:border-box;flex-basis:30%;height:30%;padding:1.25vw 2vw;margin:1%;border:solid .1vw #aaa;border-radius:1vw;background-clip:padding-box;background-color:#eee;font-family:sans-serif;font-size:10vw;font-weight:700;color:#333;text-shadow:.1vw .1vw rgba(153,153,153,0.75);cursor:pointer}\n"..
+"button:nth-of-type(3n+1){margin-left:0}\n"..
+"button:nth-last-of-type(3n+1){margin-right:0}\n"..
+"button:hover{background-color:#6af;color:#000}\n"..
 "</style>\n"..
 "</head>\n"..
 "<body>\n"..
@@ -51,9 +56,34 @@ www:listen(PORT, function(sock)
 "		<button name='cmd' value='B' title='backward'>&#8681;</button>\n"..
 "		<button name='cmd' value='BR' title='backward to the right'>&#8600;</button>\n"..
 "	</form>\n"..
-"	<script type='text/javascript'>\n"..
-"	/* todo  */\n"..
-"	</script>\n"..
+"<script type='text/javascript'>"..
+"(function iife(w){"..
+"var f=w.document.forms[0],"..
+"buttons=w.document.querySelectorAll('button'),"..
+"minMsBetweenPosts=500,"..
+"isPosting=0,"..
+"postingTimer=null,"..
+"tryXhrPost=function(val){"..
+"try{"..
+"isPosting=1;"..
+"var xhr=new w.XMLHttpRequest;"..
+"xhr.open(f.method,f.action,true);"..
+"xhr.addEventListener('load',function xhrLoad(xev){var response=this;if(w.console)w.console.info('XHR Load:',response,xev);isPosting=0});"..
+"xhr.addEventListener('error',function xhrError(xer){if(w.console)w.console.info('XHR Error:',xer);isPosting=0});"..
+"xhr.addEventListener('abort',function xhrAbort(){if(w.console)w.console.log('XHR Aborted.');isPosting=0});"..
+"if(w.console)w.console.log('sending cmd='+val);"..
+"xhr.send('cmd='+val)"..
+"}catch(err){if(w.console)w.console.info('Error caught:',err);f.submit()}},"..
+"postTimer=function(val){var delay=minMsBetweenPosts;if(isPosting!==1)tryXhrPost(val);else delay=delay/2;postingTimer=w.setTimeout(function timer(){postTimer(val)},delay)},"..
+"holdButton=function(ev){var button=this,val=button.value;ev.preventDefault();w.clearTimeout(postingTimer);postTimer(val)},"..
+"releaseButton=function(ev){ev.preventDefault();ev.stopPropagation();isPosting=0;w.clearTimeout(postingTimer);postingTimer=null},"..
+"clickButton=function(ev){ev.preventDefault();ev.stopPropagation()},"..
+"l=buttons.length;while(l--){"..
+"buttons[l].addEventListener('mousedown',holdButton,false);"..
+"buttons[l].addEventListener('mouseup',releaseButton,false);"..
+"buttons[l].addEventListener('click',clickButton,false)"..
+"}})(this);"..
+"</script>\n"..
 "</body>\n"..
 "</html>\n")
 
