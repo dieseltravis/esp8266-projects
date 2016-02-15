@@ -1,4 +1,4 @@
-﻿-- init...
+-- init...
 
 print ("\n")
 print ("ESP8266 Starting...")
@@ -6,9 +6,7 @@ print ("ESP8266 Starting...")
 cfg={
 	wifi= "WifiName",
 	wifipass="wifipassword", 
-	ip="127.0.0.1",
-	wwwtimeout=60,  -- seconds
-	wwwport=80
+	ip="127.0.0.1"  -- this will get set once connected to wifi
 }
 
 -- compile and execute main code
