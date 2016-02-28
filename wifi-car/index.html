@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<meta name='viewport' content='width=device-width' />
+<link rel='icon' href=
+'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC' 
+type='image/x-png' />
+<title>esp8266 car</title>
+<style type='text/css'>
+html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;height:100%;margin:0;padding:0}
+form{position:relative}
+button{
+display:inline-block;box-sizing:border-box;flex-basis:30%;height:30%;padding:1.25vw 2vw;margin:1%;
+border:solid .1vw #aaa;border-radius:1vw;background-clip:padding-box;background-color:#eee;font-family:sans-serif;
+font-size:10vw;font-weight:700;color:#333;text-shadow:.1vw .1vw rgba(153,153,153,0.75);cursor:pointer
+}
+button:nth-of-type(3n+1){margin-left:0}
+button:nth-last-of-type(3n+1){margin-right:0}
+button:hover{background-color:#6af;color:#000}
+</style>
+</head>
+<body>
+<form method='post' action='/?'>
+<button name='cmd' value='FL' title='forward to the left'>&#8598;</button>
+<button name='cmd' value='F' title='forward'>&#8679;</button>
+<button name='cmd' value='FR' title='forward to the right'>&#8599;</button>
+
+<button name='cmd' value='L' title='rotate counter-clockwise'>&#8693;</button>
+<button name='cmd' value='STOP' title='stop'>.</button>
+<button name='cmd' value='R' title='rotate clockwise'>&#8645;</button>
+
+<button name='cmd' value='BL' title='backward to the left'>&#8601;</button>
+<button name='cmd' value='B' title='backward'>&#8681;</button>
+<button name='cmd' value='BR' title='backward to the right'>&#8600;</button>
+</form>
+<script type='text/javascript'>
+(function iife(w){
+var f=w.document.forms[0],
+buttons=w.document.querySelectorAll('button'),
+minMsBetweenPosts=500,
+isPosting=0,
+postingTimer=null,
+tryXhrPost=function(val){
+if(w.console)w.console.log('trying to post...');
+try{
+isPosting=1;
+var xhr=new w.XMLHttpRequest;
+xhr.open(f.method,f.action,true);
+xhr.addEventListener('load',function xhrLoad(xev){var response=this;if(w.console)w.console.info('XHR Load:',response,xev);isPosting=0});
+xhr.addEventListener('error',function xhrError(xer){if(w.console)w.console.info('XHR Error:',xer);isPosting=0});
+xhr.addEventListener('abort',function xhrAbort(){if(w.console)w.console.log('XHR Aborted.');isPosting=0});
+if(w.console)w.console.log('sending cmd='+val);
+xhr.send('cmd='+val)
+}catch(err){if(w.console)w.console.info('Error caught:',err);f.submit()}},
+postTimer=function(val){var delay=minMsBetweenPosts;
+if(isPosting!==1)tryXhrPost(val);else delay=delay/2;postingTimer=w.setTimeout(function timer(){postTimer(val)},delay)},
+holdButton=function(ev){if(w.console)w.console.log('holdButton...');
+var button=this,val=button.value;ev.preventDefault();w.clearTimeout(postingTimer);postTimer(val)},
+releaseButton=function(ev){if(w.console)w.console.log('releaseButton...');
+ev.preventDefault();ev.stopPropagation();isPosting=0;w.clearTimeout(postingTimer);postingTimer=null;},
+clickButton=function(ev){if(w.console)w.console.log('clickButton...');
+ev.preventDefault();ev.stopPropagation();},
+l=buttons.length;while(l--){
+buttons[l].addEventListener('mousedown',holdButton,false);
+buttons[l].addEventListener('mouseup',releaseButton,false);
+buttons[l].addEventListener('click',clickButton,false);
+}
+})(this);
+</script>
+</body>
+</html>
