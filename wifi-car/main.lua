@@ -73,39 +73,83 @@ function carCommand (command, time)
 end
 
 function sendfile(conn, filename)
-    if file.open(filename, "r") then
-        --repeat
-        --    --local line=file.read(128)
-        --    local line=file.readline()
-        --    if line then conn:send(line)end
-		--	tmr.wdclr()
-        --until not line
-        --file.close()
+	local index = 0
+	local chunkSize = 512
 
-		while true do
-			line = file.readline()
-			if (line == nil) then break end
-			--print(string.sub(line, 1, -2))
-			conn:send(line)
-			tmr.wdclr()
+	conn:on("sent", function (conn)
+
+		if filename and file.open(filename, "r") then
+			--conn:send(file.read())
+
+			--repeat
+			--    --local line=file.read(128)
+			--    local line=file.readline()
+			--    if line then conn:send(line)end
+			--	tmr.wdclr()
+			--until not line
+			--file.close()
+
+			--while true do
+			--	line = file.readline()
+			--	if (line == nil) then break end
+			--	--print(string.sub(line, 1, -2))
+			--	conn:send(line)
+			--	tmr.wdclr()
+			--	collectgarbage()
+			--end
+
+			----local content = file.read()
+			--local content = ""
+			--while true do
+			--	local chunk = file.read(127)
+			--	if (chunk == nil) then break end
+			--	content = content..chunk
+			--	tmr.wdclr()
+			--end
+			--
+			--file.close()
+			--
+			--local length = string.len(content)
+			--
+			--conn:send("Content-length: "..length.."\n"..
+			--  "\n")
+			--conn:send(content)
+			--
+			--print(content)
+
+			--local index = 0
+			--local chunkSize = 512
+			--repeat
+				file.seek("set", index)
+				local chunk=file.read(chunkSize)
+				file.close()
+
+				if chunk then
+					index = index + string.len(chunk)
+					conn:send(chunk)
+				end
+			--until not chunk
+
+			--file.close()
+
 			collectgarbage()
 		end
-
-		--conn:send(file.read())
-
-		file.close()
-
-	end
+	end)
 
 end
 
 function webServer()
-    --"Connection: close\n"..
   HTTP_HEADERS = "Server: ESP8266 Webserver\n"..
+    "Connection: close\n"..
     "Access-Control-Allow-Origin: *\n"
   PORT = 80
-  TIMEOUT_SECONDS = 60
+  TIMEOUT_SECONDS = 10
+  CHUNK_SIZE = 512
+  index = 0
+  filename = nil
 
+
+  if www then www:close() www = nil end
   www = net.createServer(net.TCP, TIMEOUT_SECONDS)
 
   www:listen(PORT, function(sock)
@@ -117,53 +161,63 @@ function webServer()
 	  end
 
       --TODO: use match instead of substring
-      local method = string.sub(request, 1, 4)
+      local method = string.sub(request, 1, 6)
+	  filename = nil
 
       -- get debugging info?
 
-      if method == "GET " then
-        --client:send("HTTP/1.1 200 OK\n"..
-        --  HTTP_HEADERS..
-        --  "Content-Type: text/html\n"..
-        --  "\n")
+      if method == "GET / " then
+        client:send("HTTP/1.1 200 OK\n"..
+          HTTP_HEADERS..
+          "Content-Type: text/html\n"..
+		  "\n")
 
-
-		sendfile(client, "index.html")
-
-  	  elseif method == "POST" then
-        -- read cmd from data
-        --local postparse = {string.find(request, "cmd=")}
-        --TODO: use match instead of substring
-        --local cmd = string.sub(request, postparse[2] + 1, #request)
-
-		--local commandStart, commandEnd = string.find(request, "command=")
-		--local command = string.sub(request, commandEnd)
-		--print(command)
-
+		--sendfile(client, "index.html")
+		filename = "index.html"
+		index = 0
+  	  elseif method == "POST /" then
 		local _, _, cmd = string.find(request, "cmd=(%a+)")
-		print("cmd"..cmd)
+		print("cmd:"..cmd)
 
 		carCommand(cmd, 250)
 
         -- return JSON
         client:send("HTTP/1.1 200 OK\n"..
           HTTP_HEADERS..
-          "Content-Type: application/json\n"..
-          "\n"..
+          "Content-Type: application/json\n\n"..
           '{"OK":true,"cmd":"'..cmd..'"}\n')
+		client:close()
       else
         -- error
         client:send("HTTP/1.1 501 Not Implemented\n"..
           HTTP_HEADERS)
+	    client:close()
       end
 
-	  client:close()
       --client:on("sent", function (conn)
       --  conn:close()
       --end)
 
       collectgarbage()
     end)
+
+	sock:on("sent", function (conn)
+		if filename and file.open(filename, "r") then
+
+			file.seek("set", index)
+			local chunk=file.read(CHUNK_SIZE)
+			file.close()
+
+			if chunk then
+				index = index + string.len(chunk)
+				conn:send(chunk)
+			else
+				conn:close();
+			end
+
+			collectgarbage()
+		end
+	end)
   end)
 end
 
