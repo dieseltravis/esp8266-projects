@@ -13,11 +13,18 @@ R2 = 4
 A1 = 1
 A2 = 2
 
+stopFlag = true
+spdTargetA = 1023
+spdCurrentA = 0
+spdTargetB = 1023
+spdCurrentB = 0
+
 function pwmInit()
   print('gpio & pwm init...')
   
-  --gpio.mode(0,gpio.OUTPUT);--LED Light on
-  --gpio.write(0,gpio.LOW);
+  --LED Light on
+  --gpio.mode(0,gpio.OUTPUT)
+  --gpio.write(0,gpio.LOW)
 
   gpio.mode(L1, gpio.OUTPUT)
   gpio.write(L1, gpio.LOW)
@@ -29,13 +36,73 @@ function pwmInit()
   gpio.mode(R2, gpio.OUTPUT)
   gpio.write(R2, gpio.HIGH)
 
-  pwm.setup(A1, 1000, 1023)--PWM 1KHz, Duty 1023
+  --PWM 1KHz, Duty 1023
+  pwm.setup(A1, 1000, 1023)
   pwm.start(A1)
   pwm.setduty(A1, 0)
 
   pwm.setup(A2, 1000, 1023)
   pwm.start(A2)
   pwm.setduty(A2, 0)
+
+  tmr.alarm(1, 200, 1, function()
+    if stopFlag == false then
+      spdCurrentA = spdTargetA
+      spdCurrentB = spdTargetB
+      pwm.setduty(A1, spdCurrentA)
+      pwm.setduty(A2, spdCurrentB)
+    else
+      pwm.setduty(A1, 0)
+      pwm.setduty(A2, 0)
+    end
+  end)
+end
+
+function carCommand (command)
+  print('command:'..command)
+
+  if command == 'STOP' then
+    pwm.setduty(A1, 0)
+    pwm.setduty(A2, 0)
+    stopFlag = true
+  elseif command == 'F' then
+    gpio.write(L2, gpio.HIGH)
+    gpio.write(R2, gpio.HIGH)
+    stopFlag = false
+  elseif command == 'B' then
+    gpio.write(L2, gpio.LOW)
+    gpio.write(R2, gpio.LOW)
+    stopFlag = false
+  elseif command == 'L' then
+    gpio.write(L2, gpio.LOW)
+    gpio.write(R2, gpio.HIGH)
+    stopFlag = false
+  elseif command == 'R' then
+    gpio.write(L2, gpio.HIGH)
+    gpio.write(R2, gpio.LOW)
+    stopFlag = false
+  elseif command == 'FL' then
+    gpio.write(L2, gpio.HIGH)
+    gpio.write(R2, gpio.HIGH)
+    stopFlag = false
+  elseif command == 'FR' then
+    gpio.write(L2, gpio.HIGH)
+    gpio.write(R2, gpio.HIGH)
+    stopFlag = false
+  elseif command == 'BL' then
+    gpio.write(L2, gpio.LOW)
+    gpio.write(R2, gpio.LOW)
+    stopFlag = false
+  elseif command == 'BR' then
+    gpio.write(L2, gpio.LOW)
+    gpio.write(R2, gpio.LOW)
+    stopFlag = false
+  else
+    print("Invalid Command:"..command)
+    pwm.setduty(A1, 0)
+    pwm.setduty(A2, 0)
+    stopFlag = true
+  end
 end
 
 
@@ -56,77 +123,6 @@ function initWifi(callback)
   end)
 end
 
-stopFlag = true
-spdTargetA = 1023
-spdCurrentA = 0
-spdTargetB = 1023
-spdCurrentB = 0
-
-tmr.alarm(1, 200, 1, function()
-  if stopFlag == false then
-    spdCurrentA = spdTargetA
-    spdCurrentB = spdTargetB
-    pwm.setduty(A1, spdCurrentA)
-    pwm.setduty(A2, spdCurrentB)
-  else
-    pwm.setduty(A1, 0)
-    pwm.setduty(A2, 0)
-  end
-end)
-
-function carCommand (command, time)
-  print('command:'..command)
-
-  --time = time or 500
-
-  --tmr.alarm(1, time, 0, function()
-    if command == 'STOP' then
-      pwm.setduty(A1, 0)
-      pwm.setduty(A2, 0)
-      stopFlag = true
-    elseif command == 'F' then
-      gpio.write(L2, gpio.HIGH)
-      gpio.write(R2, gpio.HIGH)
-      stopFlag = false
-    elseif command == 'B' then
-      gpio.write(L2, gpio.LOW)
-      gpio.write(R2, gpio.LOW)
-      stopFlag = false
-    elseif command == 'L' then
-      gpio.write(L2, gpio.LOW)
-      gpio.write(R2, gpio.HIGH)
-      stopFlag = false
-    elseif command == 'R' then
-      gpio.write(L2, gpio.HIGH)
-      gpio.write(R2, gpio.LOW)
-      stopFlag = false
-    elseif command == 'FL' then
-      gpio.write(L2, gpio.HIGH)
-      gpio.write(R2, gpio.HIGH)
-      stopFlag = false
-    elseif command == 'FR' then
-      gpio.write(L2, gpio.HIGH)
-      gpio.write(R2, gpio.HIGH)
-      stopFlag = false
-    elseif command == 'BL' then
-      gpio.write(L2, gpio.LOW)
-      gpio.write(R2, gpio.LOW)
-      stopFlag = false
-    elseif command == 'BR' then
-      gpio.write(L2, gpio.LOW)
-      gpio.write(R2, gpio.LOW)
-      stopFlag = false
-    else
-      print("Invalid Command:"..command)
-      pwm.setduty(A1, 0)
-      pwm.setduty(A2, 0)
-      stopFlag = true
-  --   tmr.stop(1)
-    end
-  --end)
-
-  return
-end
 
 function webServer()
   HTTP_HEADERS = "Server: ESP8266 Webserver\n"..
@@ -167,7 +163,7 @@ function webServer()
         local _, _, cmd = string.find(request, "cmd=(%a+)")
         print("cmd:"..cmd)
 
-        carCommand(cmd, 250)
+        carCommand(cmd)
 
         -- return JSON
         client:send("HTTP/1.1 200 OK\n"..
