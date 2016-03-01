@@ -1,25 +1,41 @@
 -- main.lua
 
+--1,2EN 	D1 GPIO5
+--3,4EN 	D2 GPIO4
+--1A  ~2A   D3 GPIO0
+--3A  ~4A   D4 GPIO2
+
+-- this pin config doesn't work
+L1 = 1
+R1 = 2
+L2 = 3
+R2 = 4
+A1 = 1
+A2 = 2
+
 function pwmInit()
-  print('pwmInit')
+  print('gpio & pwm init...')
+  
+  --gpio.mode(0,gpio.OUTPUT);--LED Light on
+  --gpio.write(0,gpio.LOW);
 
-  gpio.mode(1, gpio.OUTPUT)
-  gpio.write(1, gpio.LOW)
-  gpio.mode(2, gpio.OUTPUT)
-  gpio.write(2, gpio.LOW)
+  gpio.mode(L1, gpio.OUTPUT)
+  gpio.write(L1, gpio.LOW)
+  gpio.mode(R1, gpio.OUTPUT)
+  gpio.write(R1, gpio.LOW)
 
-  gpio.mode(3, gpio.OUTPUT)
-  gpio.write(3, gpio.HIGH)
-  gpio.mode(4, gpio.OUTPUT)
-  gpio.write(4, gpio.HIGH)
+  gpio.mode(L2, gpio.OUTPUT)
+  gpio.write(L2, gpio.HIGH)
+  gpio.mode(R2, gpio.OUTPUT)
+  gpio.write(R2, gpio.HIGH)
 
-  pwm.setup(1, 1000, 1023)--PWM 1KHz, Duty 1023
-  pwm.start(1)
-  pwm.setduty(1, 0)
+  pwm.setup(A1, 1000, 1023)--PWM 1KHz, Duty 1023
+  pwm.start(A1)
+  pwm.setduty(A1, 0)
 
-  pwm.setup(2, 1000, 1023)
-  pwm.start(2)
-  pwm.setduty(2, 0)
+  pwm.setup(A2, 1000, 1023)
+  pwm.start(A2)
+  pwm.setduty(A2, 0)
 end
 
 
@@ -40,34 +56,74 @@ function initWifi(callback)
   end)
 end
 
+stopFlag = true
+spdTargetA = 1023
+spdCurrentA = 0
+spdTargetB = 1023
+spdCurrentB = 0
+
+tmr.alarm(1, 200, 1, function()
+  if stopFlag == false then
+    spdCurrentA = spdTargetA
+    spdCurrentB = spdTargetB
+    pwm.setduty(A1, spdCurrentA)
+    pwm.setduty(A2, spdCurrentB)
+  else
+    pwm.setduty(A1, 0)
+    pwm.setduty(A2, 0)
+  end
+end)
+
 function carCommand (command, time)
   print('command:'..command)
 
-  time = time or 500
+  --time = time or 500
 
-  tmr.alarm(1, time, 0, function()
+  --tmr.alarm(1, time, 0, function()
     if command == 'STOP' then
-      pwm.setduty(1, 0)
-      pwm.setduty(2, 0)
+      pwm.setduty(A1, 0)
+      pwm.setduty(A2, 0)
+      stopFlag = true
     elseif command == 'F' then
-      gpio.write(3, gpio.HIGH)
-      gpio.write(4, gpio.HIGH)
+      gpio.write(L2, gpio.HIGH)
+      gpio.write(R2, gpio.HIGH)
+      stopFlag = false
     elseif command == 'B' then
-      gpio.write(3, gpio.LOW)
-      gpio.write(4, gpio.LOW)
+      gpio.write(L2, gpio.LOW)
+      gpio.write(R2, gpio.LOW)
+      stopFlag = false
     elseif command == 'L' then
-      gpio.write(3, gpio.LOW)
-      gpio.write(4, gpio.HIGH)
+      gpio.write(L2, gpio.LOW)
+      gpio.write(R2, gpio.HIGH)
+      stopFlag = false
     elseif command == 'R' then
-      gpio.write(3, gpio.HIGH)
-      gpio.write(4, gpio.LOW)
+      gpio.write(L2, gpio.HIGH)
+      gpio.write(R2, gpio.LOW)
+      stopFlag = false
+    elseif command == 'FL' then
+      gpio.write(L2, gpio.HIGH)
+      gpio.write(R2, gpio.HIGH)
+      stopFlag = false
+    elseif command == 'FR' then
+      gpio.write(L2, gpio.HIGH)
+      gpio.write(R2, gpio.HIGH)
+      stopFlag = false
+    elseif command == 'BL' then
+      gpio.write(L2, gpio.LOW)
+      gpio.write(R2, gpio.LOW)
+      stopFlag = false
+    elseif command == 'BR' then
+      gpio.write(L2, gpio.LOW)
+      gpio.write(R2, gpio.LOW)
+      stopFlag = false
     else
       print("Invalid Command:"..command)
-      pwm.setduty(1, 0)
-      pwm.setduty(2, 0)
-      tmr.stop(1)
+      pwm.setduty(A1, 0)
+      pwm.setduty(A2, 0)
+      stopFlag = true
+  --   tmr.stop(1)
     end
-  end)
+  --end)
 
   return
 end
