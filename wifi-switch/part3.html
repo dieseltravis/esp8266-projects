@@ -3,6 +3,11 @@
 </label>
 <noscript><input type='submit' value='Switch' /></noscript>
 </form>
-<script type='text/javascript'>for(var f=document.forms[0],radios=document.querySelectorAll('input[type=radio]'),submitForm=function(a){var b=this;a.preventDefault();try{var c=new XMLHttpRequest;c.open(f.method,f.action,!0),c.onload=function(b){var c=this;window.console&&window.console.info(c,a,b),200==c.status},c.send(b.value)}catch(d){window.console&&window.console.info(a,d),f.submit()}},l=radios.length;l--;)radios[l].addEventListener('change',submitForm,!1);</script>
+<script type='text/javascript'>
+for(var f=document.forms[0],radios=document.querySelectorAll('input[type=radio]'),submitForm=function(a){
+var b=this;a.preventDefault();try{var c=new XMLHttpRequest;c.open(f.method,f.action,!0),c.onload=function(b){
+var c=this;window.console&&window.console.info(c,a,b),200==c.status},c.send(b.name+"="+b.value)}catch(d){
+window.console&&window.console.info(a,d),f.submit()}},l=radios.length;l--;)radios[l].addEventListener('change',submitForm,!1);
+</script>
 </body>
 </html>

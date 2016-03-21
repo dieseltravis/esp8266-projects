@@ -6,15 +6,16 @@
 <link rel='icon' href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC' type='image/x-png' />
 <title>ESP8266 Switch</title>
 <style type='text/css'>
-html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;height:100%}
-label{display:inline-block;position:relative;border:solid .1vw #aaa;border-right:none;border-radius:0;padding:0;overflow:hidden;background-clip:padding-box;cursor:pointer;font:700 2.5vw sans-serif}
-label input[type='radio']{position:absolute;top:50%;margin-top:-.5vw;width:1vw;height:1vw;left:0;margin-left:.5vw;z-index:10;cursor:pointer}
-label input[type='radio'] + span{position:relative;display:block;text-align:center;padding:1.25vw 2vw;z-index:20;background-color:#eee;color:#333;text-shadow:.1vw .1vw rgba(153,153,153,0.75)}
+html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;height:100%;width:100%;margin:0;padding:0}
+form{position:relative}
+label{display:inline-block;position:relative;border:solid 1px #aaa;border-right:none;border-radius:0;padding:0;flex-basis:40%;height:20vh;overflow:hidden;background-clip:padding-box;cursor:pointer;font:700 12vh sans-serif}
+label input[type='radio']{position:absolute;top:50%;margin-top:-7.5vh;width:5vw;height:5vh;left:0;margin-left:.5vw;z-index:10;cursor:pointer}
+label input[type='radio'] + span{position:relative;display:block;text-align:center;padding:0;height:100%;line-height:20vh;z-index:20;background-color:#eee;color:#333;text-shadow:1px 1px rgba(153,153,153,0.75)}
 label:hover input[type='radio'] + span{background-color:#6af;color:#000}
 label input[type='radio']:checked{cursor:default}
 label input[type='radio']:checked + span{cursor:default;background-color:#37c;color:#fff;background-clip:padding-box}
-label:first-of-type{border-radius:1vw 0 0 1vw}
-label:last-of-type{border-radius:0 1vw 1vw 0;border-right:solid .1vw #aaa}
+label:first-of-type{border-radius:.25em 0 0 .25em}
+label:last-of-type{border-radius:0 .25em .25em 0;border-right:solid 1px #aaa}
 </style>
 </head>
 <body>
