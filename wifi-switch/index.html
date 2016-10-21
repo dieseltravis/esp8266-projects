@@ -1,20 +1,25 @@
 <!doctype html>
 <html amp lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
-<link rel='icon' href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC' type='image/x-png' />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1" />
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC" type="image/x-png" />
 <title>ESP8266 Switch</title>
 <link rel="canonical" href="/" />
-<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
-<style amp-custom type='text/css'>
-html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;min-height: 100%;height:100%;width:100%;margin:0;padding:0}
+<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}
+@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}
+@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}
+@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}
+@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}
+@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style>
+<noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+<style amp-custom type="text/css">
+html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;min-height:100%;height:100%;width:100%;margin:0;padding:0}
 form{position:relative}
 input[type='submit']{display:inline-block;position:relative;border:solid 1px #aaa;border-right:none;border-radius:0;padding:0;flex-basis:40%;height:20vh;overflow:hidden;background-clip:padding-box;cursor:pointer;font:700 12vh sans-serif;line-height:20vh;z-index:20;background-color:#eee;color:#333;text-shadow:1px 1px rgba(153,153,153,0.75)}
 input[type='submit']:hover{background-color:#6af;color:#000}
-input[type='submit'].checked,
 input[type='submit']:active,
-input[type='submit']:focus{cursor:default;background-color:#37c;color:#fff;background-clip:padding-box;outline:none;}
+input[type='submit']:focus{cursor:default;background-color:#37c;color:#fff;background-clip:padding-box;outline:none}
 input[type='submit']:first-of-type{border-radius:.25em 0 0 .25em}
 input[type='submit']:last-of-type{border-radius:0 .25em .25em 0;border-right:solid 1px #aaa}
 </style>
@@ -23,8 +28,8 @@ input[type='submit']:last-of-type{border-radius:0 .25em .25em 0;border-right:sol
 </head>
 <body>
 <form method="post" action="/" action-xhr="/" target="_blank">
-<input type='submit' name='toggle' value='on' autocomplete='off' />
-<input type='submit' name='toggle' value='off' autocomplete='off'/>
+<input type="submit" name="toggle" value="on" autocomplete="off" />
+<input type="submit" name="toggle" value="off" autocomplete="off"/>
 </form>
 </body>
 </html>
