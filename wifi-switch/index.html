@@ -1,40 +1,30 @@
 <!doctype html>
-<html lang='en'>
+<html amp lang="en">
 <head>
-<meta charset='utf-8' />
-<meta name='viewport' content='width=device-width' />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <link rel='icon' href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC' type='image/x-png' />
 <title>ESP8266 Switch</title>
-<style type='text/css'>
-html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;height:100%;width:100%;margin:0;padding:0}
+<link rel="canonical" href="/" />
+<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+<style amp-custom type='text/css'>
+html,body,form{display:flex;justify-content:center;align-items:center;align-content:center;flex-wrap:wrap;min-height: 100%;height:100%;width:100%;margin:0;padding:0}
 form{position:relative}
-label{display:inline-block;position:relative;border:solid 1px #aaa;border-right:none;border-radius:0;padding:0;flex-basis:40%;height:20vh;overflow:hidden;background-clip:padding-box;cursor:pointer;font:700 12vh sans-serif}
-label input[type='radio']{position:absolute;top:50%;margin-top:-7.5vh;width:5vw;height:5vh;left:0;margin-left:.5vw;z-index:10;cursor:pointer}
-label input[type='radio'] + span{position:relative;display:block;text-align:center;padding:0;height:100%;line-height:20vh;z-index:20;background-color:#eee;color:#333;text-shadow:1px 1px rgba(153,153,153,0.75)}
-label:hover input[type='radio'] + span{background-color:#6af;color:#000}
-label input[type='radio']:checked{cursor:default}
-label input[type='radio']:checked + span{cursor:default;background-color:#37c;color:#fff;background-clip:padding-box}
-label:first-of-type{border-radius:.25em 0 0 .25em}
-label:last-of-type{border-radius:0 .25em .25em 0;border-right:solid 1px #aaa}
+input[type='submit']{display:inline-block;position:relative;border:solid 1px #aaa;border-right:none;border-radius:0;padding:0;flex-basis:40%;height:20vh;overflow:hidden;background-clip:padding-box;cursor:pointer;font:700 12vh sans-serif;line-height:20vh;z-index:20;background-color:#eee;color:#333;text-shadow:1px 1px rgba(153,153,153,0.75)}
+input[type='submit']:hover{background-color:#6af;color:#000}
+input[type='submit'].checked,
+input[type='submit']:active,
+input[type='submit']:focus{cursor:default;background-color:#37c;color:#fff;background-clip:padding-box;outline:none;}
+input[type='submit']:first-of-type{border-radius:.25em 0 0 .25em}
+input[type='submit']:last-of-type{border-radius:0 .25em .25em 0;border-right:solid 1px #aaa}
 </style>
+<script async src="https://cdn.ampproject.org/v0.js"></script>
+<script async custom-element="amp-form" src="https://cdn.ampproject.org/v0/amp-form-0.1.js"></script>
 </head>
 <body>
-<form action='/' method='post'>
-<label>
-<input type='radio' name='toggle' value='on' autocomplete='off' />
-<span>On</span>
-</label>
-<label>
-<input type='radio' name='toggle' value='off' autocomplete='off'/>
-<span>Off</span>
-</label>
-<noscript><input type='submit' value='Switch' /></noscript>
+<form method="post" action="/" action-xhr="/" target="_blank">
+<input type='submit' name='toggle' value='on' autocomplete='off' />
+<input type='submit' name='toggle' value='off' autocomplete='off'/>
 </form>
-<script type='text/javascript'>
-for(var f=document.forms[0],radios=document.querySelectorAll('input[type=radio]'),submitForm=function(a){
-var b=this;a.preventDefault();try{var c=new XMLHttpRequest;c.open(f.method,f.action,!0),c.onload=function(b){
-var c=this;window.console&&window.console.info(c,a,b),200==c.status},c.send(b.name+"="+b.value)}catch(d){
-window.console&&window.console.info(a,d),f.submit()}},l=radios.length;l--;)radios[l].addEventListener('change',submitForm,!1);
-</script>
 </body>
 </html>
