@@ -1,3 +1,8 @@
+// d1_mini - Version: Latest 
+//#include <pins_arduino.h>
+
+#include <stdlib.h>
+
 // ESP8266WiFi - Version: Latest 
 #include <ESP8266WiFi.h>
 // DNSServer - Version: Latest 
@@ -10,11 +15,11 @@
 #include <IRremoteESP8266.h>
 
 // IR setup
-#define DELAY_BETWEEN_COMMANDS 1000
+const int DELAY_BETWEEN_COMMANDS = 1000;
 //TODO: use correct IR pin(s):
-#define IR_SEND_PIN1 D2
-#define IR_SEND_PIN2 D4
-#define IR_SEND_PIN3 D6
+const int IR_SEND_PIN1 = D2;
+const int IR_SEND_PIN2 = D4;
+const int IR_SEND_PIN3 = D6;
 IRsend irsend1(IR_SEND_PIN1);
 IRsend irsend2(IR_SEND_PIN2);
 IRsend irsend3(IR_SEND_PIN3);
@@ -175,7 +180,9 @@ void handleRemote(){
     secondData = cmdParam.substring(firstComma + 1);
   }
   
-  data = firstData.toInt();
+  //data = firstData.toInt();
+  const char * c = firstData.c_str();
+  data = strtol(c, 0, 16);
   nbits = secondData.toInt();
   if (thirdData.length() > 0) {
     repeat = thirdData.toInt();
