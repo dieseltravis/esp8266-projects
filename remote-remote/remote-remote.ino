@@ -1,7 +1,7 @@
 // d1_mini - Version: Latest 
 //#include <pins_arduino.h>
 
-#include <stdlib.h>
+//#include <stdlib.h>
 
 // ESP8266WiFi - Version: Latest 
 #include <ESP8266WiFi.h>
@@ -27,6 +27,7 @@ const int led = BUILTIN_LED;
 
 // web server
 std::unique_ptr<ESP8266WebServer> wwwserver;
+
 const char START_HTML[] PROGMEM = "<!doctype html>\n"
   "<html class=\"no-js\" lang=\"en-us\">\n"
   "<head>\n"
@@ -37,7 +38,6 @@ const char START_HTML[] PROGMEM = "<!doctype html>\n"
   "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC"
   "\" type=\"image/x-png\" />\n"
   "<title>Remote²</title>\n";
-
 const char CSS[] PROGMEM = "<style>\n"
   "body {\n"
   "  font-family: \"Segoe UI\", Candara, \"Bitstream Vera Sans\", \"DejaVu Sans\", \"Bitstream Vera Sans\", \"Trebuchet MS\", Verdana, \"Verdana Ref\", sans-serif;\n"
@@ -74,12 +74,12 @@ const char CSS[] PROGMEM = "<style>\n"
   " color: green;\n"
   "}\n"
   "</style>\n";
-
 const char START_FORM[] PROGMEM = "</head>\n"
   "<body>\n"
   "<form action=\"/remote\">\n"
   "<fieldset>\n";
-
+const char BR[] PROGMEM = "<br />\n";
+const char END_FORM[] PROGMEM = "</fieldset>\n</form>\n";
 const char JS[] PROGMEM = "<script src=\"//code.jquery.com/jquery-3.1.0.js\"></script>\n"
   "<script>\n"
   "$(function jq () {\n"
@@ -110,17 +110,15 @@ const char JS[] PROGMEM = "<script src=\"//code.jquery.com/jquery-3.1.0.js\"></s
   " });\n"
   "});\n"
   "</script>\n";
+const char END_HTML[] PROGMEM = "</body>\n</html>\n";
 
-const char END_FORM[] PROGMEM = "</fieldset>\n"
-  "</form>\n";
+String getLegendHtml(String title, String irLed, String irType) {
+  return "<legend>" + title + "</legend>\n" +
+    "<input name=\"led\" type=\"hidden\" value=\"" + irLed + "\" />\n" +
+    "<input name=\"type\" type=\"hidden\" value=\"" + irType + "\" />\n";
+}
 
-const char END_HTML[] PROGMEM = "</body>\n"
-  "</html>\n";
-
-const char BR[] PROGMEM = "<br />\n";
-
-
-String generateButton(String value, String text, String cssClasses) {
+String getButtonHtml(String value, String text, String cssClasses) {
   return "<button name=\"cmd""\" value=\"" + value + "\" class=\"" + cssClasses + "\">" + text + "</button>";
 }
 
@@ -130,12 +128,10 @@ void handleRoot() {
   String page = START_HTML;
   page += CSS;  
   page += START_FORM;
-  page += "<legend>TV</legend>\n";
-  page += "<input name=\"led\" type=\"hidden\" value=\"1\" />\n";
-  page += "<input name=\"type\" type=\"hidden\" value=\"Sony\" />\n";
+  page += getLegendHtml("TV", "1", "Sony");
   
   // buttons: 
-  page += generateButton("0xa90,12,2", "Power", "");
+  page += getButtonHtml("0xa90,12,2", "Power", "");
   page += BR;
   
   page += END_FORM;
@@ -146,6 +142,15 @@ void handleRoot() {
   digitalWrite(led, 1);
 }
 
+void sendRemoteCommands(IRsend irsend, String typeParam, unsigned long data, int nbits, unsigned int repeat) {
+  // send code to IR LED
+  if (typeParam == "Sony") {
+    irsend.sendSony(data, nbits, repeat);
+  } else if (typeParam == "NEC") {
+    irsend.sendNEC(data, nbits, repeat);
+  }
+}
+
 void handleRemote(){
   digitalWrite(led, 1);
 
@@ -153,21 +158,12 @@ void handleRemote(){
   String ledParam = wwwserver->arg("led");
   String typeParam = wwwserver->arg("type");
   String cmdParam = wwwserver->arg("cmd");
-  IRsend irsend(2);
-  
-  // select which IR LED to send to
-  if (ledParam == "1") {
-    irsend = irsend1;
-  } else if (ledParam == "2") {
-    irsend = irsend2;
-  } else if (ledParam == "3") {
-    irsend = irsend3;
-  }
 
   unsigned long data;
   int nbits;
   unsigned int repeat = 0;
   
+  // parse cmd param
   int firstComma = cmdParam.indexOf(',');
   int secondComma = cmdParam.indexOf(',', firstComma + 1);
   String firstData = cmdParam.substring(0, firstComma);
@@ -180,19 +176,26 @@ void handleRemote(){
     secondData = cmdParam.substring(firstComma + 1);
   }
   
-  //data = firstData.toInt();
+  // data param is converted from hex to long
   const char * c = firstData.c_str();
+  // or 
+  //char c[firstData.length() + 1];
+  //firstData.toCharArray(c, sizeof(c));
   data = strtol(c, 0, 16);
+  
+  // remaining params are simple ints
   nbits = secondData.toInt();
   if (thirdData.length() > 0) {
     repeat = thirdData.toInt();
   }
   
-  // send code to IR LED
-  if (typeParam == "Sony") {
-    irsend.sendSony(data, nbits, repeat);
-  } else if (typeParam == "NEC") {
-    irsend.sendNEC(data, nbits, repeat);
+  // select which IR LED to send to
+  if (ledParam == "1") {
+    sendRemoteCommands(irsend1, typeParam, data, nbits, repeat);
+  } else if (ledParam == "2") {
+    sendRemoteCommands(irsend2, typeParam, data, nbits, repeat);
+  } else if (ledParam == "3") {
+    sendRemoteCommands(irsend3, typeParam, data, nbits, repeat);
   }
 
   wwwserver->send(200, "text/plain", "OK.\n\n");
