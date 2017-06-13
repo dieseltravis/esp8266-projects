@@ -124,13 +124,14 @@ String getButtonHtml(String value, String text, String cssClasses) {
 
 void handleRoot() {
   digitalWrite(led, 0);
-  // is this too large?
+  // is this too large? yes.
+  /*
   String page = START_HTML;
   page += CSS;  
   page += START_FORM;
   page += getLegendHtml("TV", "1", "Sony");
   
-  //TODO: buttons: 
+  // buttons: 
   page += getButtonHtml("0xa90,12,2", "Power", "");
   page += BR;
   
@@ -139,10 +140,31 @@ void handleRoot() {
   page += END_HTML;
   
   wwwserver->send(200, "text/html", page);
+  */
+
+  // send headers
+  wwwserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
+  wwwserver->sendHeader("Content-Type", "text/html", true);
+  //wwwserver->sendHeader("Cache-Control", "no-cache");
+  wwwserver->send(200);
+
+  // send content
+  wwwserver->sendContent(START_HTML);
+  wwwserver->sendContent(CSS);
+  wwwserver->sendContent(START_FORM);
+  wwwserver->sendContent(getLegendHtml("TV", "1", "Sony"));
+
+  wwwserver->sendContent(getButtonHtml("0xa90,12,2", "Power", ""));
+  wwwserver->sendContent(BR);
+
+  wwwserver->sendContent(END_FORM);
+  wwwserver->sendContent(JS);
+  wwwserver->sendContent(END_HTML);
+
   digitalWrite(led, 1);
 }
 
-void sendRemoteCommands(IRsend irsend, String typeParam, unsigned long data, int nbits, unsigned int repeat) {
+void sendRemoteCommands(IRsend &irsend, String typeParam, unsigned long data, int nbits, unsigned int repeat) {
   // send code to IR LED
   if (typeParam == "Sony") {
     irsend.sendSony(data, nbits, repeat);
@@ -248,4 +270,3 @@ void setup() {
 void loop() {
   wwwserver->handleClient();
 }
-
