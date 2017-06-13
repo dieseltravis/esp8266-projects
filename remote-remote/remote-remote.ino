@@ -17,9 +17,9 @@
 // IR setup
 const int DELAY_BETWEEN_COMMANDS = 1000;
 //TODO: use correct IR pin(s):
-const int IR_SEND_PIN1 = D2;
-const int IR_SEND_PIN2 = D4;
-const int IR_SEND_PIN3 = D6;
+const int IR_SEND_PIN1 = D1;
+const int IR_SEND_PIN2 = D2;
+const int IR_SEND_PIN3 = D3;
 IRsend irsend1(IR_SEND_PIN1);
 IRsend irsend2(IR_SEND_PIN2);
 IRsend irsend3(IR_SEND_PIN3);
@@ -130,7 +130,7 @@ void handleRoot() {
   page += START_FORM;
   page += getLegendHtml("TV", "1", "Sony");
   
-  // buttons: 
+  //TODO: buttons: 
   page += getButtonHtml("0xa90,12,2", "Power", "");
   page += BR;
   
