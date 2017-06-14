@@ -9,17 +9,27 @@
 #include <DNSServer.h>
 // ESP8266WebServer - Version: Latest 
 #include <ESP8266WebServer.h>
+
 // WiFiManager - Version: 0.12.0
 #include <WiFiManager.h>
+
 // IRremoteESP8266-1.2.0 - Version: Latest 
+#include <IRrecv.h>
 #include <IRremoteESP8266.h>
+#include <IRsend.h>
+#include <IRtimer.h>
+#include <IRutils.h>
+#include <ir_Daikin.h>
+#include <ir_Kelvinator.h>
+#include <ir_LG.h>
+#include <ir_Mitsubishi.h>
 
 // IR setup
 const int DELAY_BETWEEN_COMMANDS = 1000;
 //TODO: use correct IR pin(s):
 const int IR_SEND_PIN1 = D1;
 const int IR_SEND_PIN2 = D2;
-const int IR_SEND_PIN3 = D3;
+const int IR_SEND_PIN3 = D8;
 IRsend irsend1(IR_SEND_PIN1);
 IRsend irsend2(IR_SEND_PIN2);
 IRsend irsend3(IR_SEND_PIN3);
