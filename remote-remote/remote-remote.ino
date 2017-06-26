@@ -104,9 +104,9 @@ const char CSS[] PROGMEM = "<style>\n"
 	"	color: green;\n"
 	"}\n"
   "</style>\n";
-const char START_FORM[] PROGMEM = "</head>\n"
-  "<body>\n"
-  "<form action=\"/remote\">\n"
+const char START_BODY[] PROGMEM = "</head>\n"
+  "<body>\n";
+const char START_FORM[] PROGMEM = "<form action=\"/remote\">\n"
   "<fieldset>\n";
 const char BR[] PROGMEM = "<br />\n";
 const char END_FORM[] PROGMEM = "</fieldset>\n</form>\n";
@@ -188,6 +188,9 @@ void handleRoot() {
   // send content
   wwwserver->sendContent(START_HTML);
   wwwserver->sendContent(CSS);
+	wwwserver->sendContent(START_BODY);
+	
+	// Sony TV
   wwwserver->sendContent(START_FORM);
   wwwserver->sendContent(getLegendHtml("TV", "1", "Sony"));
 
@@ -195,6 +198,25 @@ void handleRoot() {
   wwwserver->sendContent(BR);
 
   wwwserver->sendContent(END_FORM);
+	
+	// Test 1
+  wwwserver->sendContent(START_FORM);
+  wwwserver->sendContent(getLegendHtml("Test", "2", "Sony"));
+
+  wwwserver->sendContent(getButtonHtml("0xa90,12,2", "Test", ""));
+  wwwserver->sendContent(BR);
+
+  wwwserver->sendContent(END_FORM);
+	
+	// Test 2
+  wwwserver->sendContent(START_FORM);
+  wwwserver->sendContent(getLegendHtml("Test 2", "3", "Sony"));
+
+  wwwserver->sendContent(getButtonHtml("0xa90,12,2", "Test 2", ""));
+  wwwserver->sendContent(BR);
+
+  wwwserver->sendContent(END_FORM);
+	
   wwwserver->sendContent(JS);
   wwwserver->sendContent(END_HTML);
 
