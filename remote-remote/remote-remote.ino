@@ -104,10 +104,8 @@ const char CSS[] PROGMEM = "<style>\n"
 	"	color: green;\n"
 	"}\n"
   "</style>\n";
-const char START_BODY[] PROGMEM = "</head>\n"
-  "<body>\n";
-const char START_FORM[] PROGMEM = "<form action=\"/remote\">\n"
-  "<fieldset>\n";
+const char START_BODY[] PROGMEM = "</head>\n<body>\n";
+const char START_FORM[] PROGMEM = "<form action=\"/remote\">\n<fieldset>\n";
 const char BR[] PROGMEM = "<br />\n";
 const char END_FORM[] PROGMEM = "</fieldset>\n</form>\n";
 const char JS[] PROGMEM = "<script>\n"
@@ -161,23 +159,6 @@ String getButtonHtml(String value, String text, String cssClasses) {
 
 void handleRoot() {
   digitalWrite(led, 0);
-  // is this too large? yes.
-  /*
-  String page = START_HTML;
-  page += CSS;  
-  page += START_FORM;
-  page += getLegendHtml("TV", "1", "Sony");
-  
-  // buttons: 
-  page += getButtonHtml("0xa90,12,2", "Power", "");
-  page += BR;
-  
-  page += END_FORM;
-  page += JS;  
-  page += END_HTML;
-  
-  wwwserver->send(200, "text/html", page);
-  */
 
   // send headers
   wwwserver->setContentLength(CONTENT_LENGTH_UNKNOWN);
