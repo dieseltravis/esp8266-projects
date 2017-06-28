@@ -107,6 +107,7 @@ const char CSS[] PROGMEM = "<style>\n"
 const char START_BODY[] PROGMEM = "</head>\n<body>\n";
 const char START_FORM[] PROGMEM = "<form action=\"/remote\">\n<fieldset>\n";
 const char BR[] PROGMEM = "<br />\n";
+const char HR[] PROGMEM = "<hr />\n";
 const char END_FORM[] PROGMEM = "</fieldset>\n</form>\n";
 const char JS[] PROGMEM = "<script>\n"
   "(function iife(w) {\n"
