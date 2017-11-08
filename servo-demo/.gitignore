@@ -1,0 +1,12 @@
+# MQTT config info
+data/config.json
+
+.DS_Store
+bin/*/
+*build-*
+*~
+build-tmp/
+Makefile
+doc/
+debug.txt
+.ycm_extra_conf.pyc

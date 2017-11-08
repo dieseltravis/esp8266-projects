@@ -1,0 +1,44 @@
+<!doctype html>
+<html class="no-js" lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="robots" content="noindex">
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAS0lEQVR42s2SMQ4AIAjE+P+ncSYdasgNXMJgcyIIlVKPIKdvioAXyWBeJmVpqRZKWtj9QWAKZyWll50b8IcL9JUeQF50n28ckyb0ADG8RLwp05YBAAAAAElFTkSuQmCC" type="image/x-png" />
+  <title>Feeder</title>
+</head>
+<body>
+  <form action="/feed">
+    <button id="feed" style="width:80vw;height:60vh;outline-width:5vw;cursor:pointer;">Feed</button>
+    <p class="status">OK.</p>
+  </form>
+<script>
+var w = window,
+    d = w.document,
+    form = d.querySelector("form"),
+    feed = d.querySelector("button"),
+    feedStatus = d.querySelector(".status");
+
+feed.addEventListener("click", function formSubmit(ev) {
+  ev.preventDefault();
+  feedStatus.innerText = "loading...";
+
+  w.fetch(form.action, {
+    method: "GET"
+  }).then(function fetchForm(response) {
+    if (response.ok) {
+      w.console.info("ok", response.text());
+      feedStatus.innerText = "OK.";
+    } else {
+      w.console.info("not ok", response);
+      feedStatus.innerText = "Not OK, see console.";
+    }
+  }).catch(function fetchError(err) {
+    w.console.info("error", err);
+    feedStatus.innerText = "Error, see console.";
+  });
+});
+</script>
+</body>
+</html>
