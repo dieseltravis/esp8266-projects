@@ -105,3 +105,12 @@ String GetWuUrl() {
     "q/" + wu_query + 
     "." + WU_FORMAT;
 }
+
+// WU data values to get:
+// data.current_observation.temp_f (float)
+// data.forecast.simpleforecast.forecastday[0].high.fahrenheit (string)
+// data.forecast.simpleforecast.forecastday[0].low.fahrenheit (string)
+
+String GetTempFormat(String temp) {
+	return temp + "°F";
+}
