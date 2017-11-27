@@ -136,12 +136,14 @@ void Oled_ShowTemps() {
   if (sht30.get() == 0) {
     display.println("T: ");
     display.setTextSize(2);
-    display.println(sht30.cTemp);
+    display.print(sht30.fTemp);
+		display.println("°F");
 
     display.setTextSize(1);
     display.println("H: ");
     display.setTextSize(2);
-    display.println(sht30.humidity);
+    display.print(sht30.humidity);
+		display.println("%");
   } else {
     display.println("Error!");
   }
@@ -155,6 +157,6 @@ void Oled_ShowTemps() {
 // data.forecast.simpleforecast.forecastday[0].high.fahrenheit (string)
 // data.forecast.simpleforecast.forecastday[0].low.fahrenheit (string)
 
-String GetTempFormat(String temp) {
-	return temp + "°F";
-}
+//String GetTempFormat(String temp) {
+//	return temp + "°F";
+//}
