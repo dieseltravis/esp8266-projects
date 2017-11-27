@@ -23,6 +23,7 @@
 
 #define CONFIG  "/config.json"
 
+
 // wunderground constants * params
 #define WU_BASE_API "http://api.wunderground.com/api/"
 // Returns the API response in the specified language.
@@ -46,9 +47,22 @@ char wu_query[6] = "00000";
 
 // WeMos
 #define OLED_RESET 0  // GPIO0
+// SSD1306_SWITCHCAPVCC 0x2
+// SSD1306_I2C_ADDRESS: 
+// 011110+SA0+RW - 0x3C or 0x3D
+// Address for 128x32 is 0x3C
+// Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
+#define OLED_ADDRESS 0x3C
 Adafruit_SSD1306 display(OLED_RESET);
 
-SHT3X sht30(0x45);
+#define SHT3X_ADDRESS 0x45
+SHT3X sht30(SHT3X_ADDRESS);
+
+
+// HC-SR501 Motion Detector
+//TODO: test HC-SR501 pin
+#define IR_PIN D1
+int ir_value;
 
 
 void setup() {
@@ -95,13 +109,22 @@ void setup() {
   //Serial.println("HTTP Server Started");
   
   // OLED setup
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
+	
+	// IR sensor setup
+	pinMode(IR_PIN, INPUT);
 }
 
 void loop() {
   // handle web requests
   //wwwServer->handleClient();
   //TODO: 
+	
+	ir_value = digitalRead(IR_PIN);
+	Serial.println("IR value: ");
+	Serial.println(ir_value);
+	
+	delay(500);
 }
 
 
