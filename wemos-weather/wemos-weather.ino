@@ -1,15 +1,14 @@
 #include <FS.h> //this needs to be first
-// ESP8266WiFi - Version: Latest 
+// ESP8266WiFi - Version: Latest
 #include <ESP8266WiFi.h>
-// DNSServer - Version: Latest 
+// DNSServer - Version: Latest
 #include <DNSServer.h>
-// ESP8266WebServer - Version: Latest 
+// ESP8266WebServer - Version: Latest
 #include <ESP8266WebServer.h>
 // WiFiManager - Version: Latest
 #include <WiFiManager.h>
 // JSON parsing for Arduino
 #include <ArduinoJson.h>
-
 // WeMos SHT30 & OLED libs
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -48,7 +47,7 @@ char wu_query[6] = "00000";
 // WeMos
 #define OLED_RESET 0  // GPIO0
 // SSD1306_SWITCHCAPVCC 0x2
-// SSD1306_I2C_ADDRESS: 
+// SSD1306_I2C_ADDRESS:
 // 011110+SA0+RW - 0x3C or 0x3D
 // Address for 128x32 is 0x3C
 // Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
@@ -99,7 +98,7 @@ void setup() {
   wifiManager.autoConnect("AutoConnectAP");
   Serial.println("Wifi connected ok. :)");
   Serial.println(WiFi.localIP());
- 
+
   // web server
   //wwwServer.reset(new ESP8266WebServer(WiFi.localIP(), 80));
   //wwwServer->on("/", Www_Root);
@@ -107,24 +106,24 @@ void setup() {
   //wwwServer->onNotFound(Www_NotFound);
   //wwwServer->begin();
   //Serial.println("HTTP Server Started");
-  
+
   // OLED setup
   display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
-	
-	// IR sensor setup
-	pinMode(IR_PIN, INPUT);
+
+  // IR sensor setup
+  pinMode(IR_PIN, INPUT);
 }
 
 void loop() {
   // handle web requests
   //wwwServer->handleClient();
-  //TODO: 
-	
-	ir_value = digitalRead(IR_PIN);
-	Serial.println("IR value: ");
-	Serial.println(ir_value);
-	
-	delay(500);
+  //TODO:
+
+  ir_value = digitalRead(IR_PIN);
+  Serial.println("IR value: ");
+  Serial.println(ir_value);
+
+  delay(500);
 }
 
 
@@ -138,13 +137,17 @@ File GetFile(String fileName) {
 }
 
 String GetWuUrl() {
-  return WU_BASE_API + wu_key + "/" + 
-    WU_LANG + wu_lang + "/" +
-    WU_PWS + wu_pws + "/" +
-    WU_BESTFCT + wu_bestfct + "/" +
-    WU_FEATURES + "/" +
-    "q/" + wu_query + 
-    "." + WU_FORMAT;
+  //return WU_BASE_API + wu_key + "/" +
+  //       WU_LANG + wu_lang + "/" +
+  //       WU_PWS + wu_pws + "/" +
+  //       WU_BESTFCT + wu_bestfct + "/" +
+  //       WU_FEATURES + "/" +
+  //       "q/" + wu_query +
+  //       "." + WU_FORMAT;
+
+  char * str;
+  sprintf(str, "%a%b/%c%d/%e%f/%g%h/%i/q/%j.%k", WU_BASE_API, wu_key, WU_LANG, wu_lang, WU_PWS, wu_pws, WU_BESTFCT, wu_bestfct, WU_FEATURES, wu_query, WU_FORMAT);
+  return str;
 }
 
 
@@ -160,17 +163,17 @@ void Oled_ShowTemps() {
     display.println("T: ");
     display.setTextSize(2);
     display.print(sht30.fTemp);
-		display.println("°F");
+    display.println("°F");
 
     display.setTextSize(1);
     display.println("H: ");
     display.setTextSize(2);
     display.print(sht30.humidity);
-		display.println("%");
+    display.println("%");
   } else {
     display.println("Error!");
   }
-  
+
   display.display();
 }
 
@@ -183,3 +186,4 @@ void Oled_ShowTemps() {
 //String GetTempFormat(String temp) {
 //	return temp + "°F";
 //}
+
