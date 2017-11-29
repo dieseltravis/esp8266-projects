@@ -67,7 +67,14 @@ int ir_value;
 void setup() {
   Serial.begin(115200);
 
-  // init values from file system
+  // wifi setup
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("AutoConnectAP");
+  Serial.println("Wifi connected ok. :)");
+  Serial.println(WiFi.localIP());
+
+
+  // init values from file system.
   if (SPIFFS.begin()) {
     Serial.println("mounted file system");
 
@@ -93,12 +100,7 @@ void setup() {
     }
   }
 
-  // wifi setup
-  WiFiManager wifiManager;
-  wifiManager.autoConnect("AutoConnectAP");
-  Serial.println("Wifi connected ok. :)");
-  Serial.println(WiFi.localIP());
-
+  
   // web server
   //wwwServer.reset(new ESP8266WebServer(WiFi.localIP(), 80));
   //wwwServer->on("/", Www_Root);
@@ -123,7 +125,7 @@ void loop() {
   Serial.println("IR value: ");
   Serial.println(ir_value);
 
-  delay(500);
+  delay(1000);
 }
 
 
