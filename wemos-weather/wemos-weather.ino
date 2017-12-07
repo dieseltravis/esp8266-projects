@@ -25,31 +25,6 @@
 
 #define DEGREES_F  "°F"
 
-/*
-// wunderground constants * params
-#define WU_BASE_API "http://api.wunderground.com/api/"
-// Returns the API response in the specified language.
-#define WU_LANG "lang:"
-// Use personal weather stations for conditions.
-#define WU_PWS "pws:"
-// Use Weather Underground Best Forecast for forecast.
-#define WU_BESTFCT "bestfct:"
-// features & format of this code
-#define WU_FEATURES "conditions/forecast"
-#define WU_FORMAT "json"
-
-// wunderground config params will be overwritten from CONFIG json file above
-char wu_key[17] = "1234567890abcdef";
-char wu_lang[3] = "EN";
-char wu_pws[2] = "1";
-char wu_bestfct[2] = "1";
-// using ZIP code, but increase size if other query is needed
-char wu_query[6] = "00000";
-
-char * wu_url; 
-*/
-
-// try Strings
 // wunderground constants * params
 const String WU_BASE_API = "http://api.wunderground.com/api/";
 // Returns the API response in the specified language.
@@ -131,13 +106,6 @@ void setup() {
       JsonObject& json = jsonBuffer.parseObject(jsonBuf.get());
       if (json.success()) {
         Serial.println("succeeded, copying strings");
-        /*
-        strcpy(wu_key, json["wu_key"]);
-        strcpy(wu_lang, json["wu_lang"]);
-        strcpy(wu_pws, json["wu_pws"]);
-        strcpy(wu_bestfct, json["wu_bestfct"]);
-        strcpy(wu_query, json["wu_query"]);
-        */
         wu_key = json["wu_key"].as<String>();
         wu_lang = json["wu_lang"].as<String>();
         wu_pws = json["wu_pws"].as<String>();
@@ -151,9 +119,6 @@ void setup() {
       jsonFile.close();
 
       Serial.println("getting url");
-      delay(5000);
-      //wu_url = Wu_GetUrl();
-      //sprintf(wu_url, WU_BASE_API + "%s/%s%s/%s%s/%s%s/%s/q/%s.%s", wu_key.c_str(), WU_LANG.c_str(), wu_lang.c_str(), WU_PWS.c_str(), wu_pws.c_str(), WU_BESTFCT.c_str(), wu_bestfct.c_str(), WU_FEATURES.c_str(), wu_query.c_str(), WU_FORMAT.c_str());
       wu_url = WU_BASE_API + wu_key + "/" + WU_LANG + wu_lang + "/" + WU_PWS + wu_pws + "/" + WU_BESTFCT + wu_bestfct + "/" + WU_FEATURES + "/q/" + wu_query + "." + WU_FORMAT;
     }
   }
@@ -170,8 +135,8 @@ void setup() {
 
   // OLED setup
   Serial.println("init OLED display");
-  //display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
-  //MIDDLE_X = display.width() / 2;
+  display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
+  MIDDLE_X = display.width() / 2;
 
   // IR sensor setup
   Serial.println("init IR sensor");
@@ -206,27 +171,20 @@ File GetFile(String fileName) {
 
 
 // WU
-/*
-char * Wu_GetUrl() {
-  char * str;
-  sprintf(str, "%a%b/%c%d/%e%f/%g%h/%i/q/%j.%k", WU_BASE_API, wu_key, WU_LANG, wu_lang, WU_PWS, wu_pws, WU_BESTFCT, wu_bestfct, WU_FEATURES, wu_query, WU_FORMAT);
-  return str;
-}
-*/
 
 void Wu_Refresh() {
   // GET wu_url
   HTTPClient http;
- 
   http.begin(wu_url);
-  Serial.println(wu_url);
   
+  Serial.println("GET url with code:");
   int httpCode = http.GET();
   Serial.println(httpCode);
 
   if (httpCode > 0) {
+    Serial.println("HTTP code, not 0, size:");
     int len = http.getSize();
-    // I bet I'm gonna have to stream that json...
+    // may have to stream that json...
     DynamicJsonBuffer jsonBuffer;
     //http.writeToStream(&Serial);
     JsonObject& json = jsonBuffer.parseObject(http.getString());
@@ -236,7 +194,7 @@ void Wu_Refresh() {
       // data.current_observation.temp_f (float)
       // data.forecast.simpleforecast.forecastday[0].high.fahrenheit (string)
       // data.forecast.simpleforecast.forecastday[0].low.fahrenheit (string)
-      wu_current_temp = json["data"]["current_observation"]["temp_f"];
+      wu_current_temp = json["current_observation"]["temp_f"];
       wu_hi_temp = json["forecast"]["simpleforecast"]["forecastday"][0]["high"]["fahrenheit"].as<char*>();
       wu_lo_temp = json["forecast"]["simpleforecast"]["forecastday"][0]["low"]["fahrenheit"].as<char*>();
     }
