@@ -1,4 +1,5 @@
 #include <FS.h> //this needs to be first
+#include <math.h>
 // ESP8266WiFi - Version: Latest
 #include <ESP8266WiFi.h>
 // DNSServer - Version: Latest
@@ -23,7 +24,8 @@
 
 #define CONFIG  "/config.json"
 
-#define DEGREES_F  "°F"
+//°
+#define DEGREES_F  "F"
 
 // wunderground constants * params
 const String WU_BASE_API = "http://api.wunderground.com/api/";
@@ -154,6 +156,7 @@ void loop() {
     // get temps from wu
     Wu_Refresh();
     // show temps
+    Oled_ShowTemps();
   }
 
   delay(1000);
@@ -184,6 +187,8 @@ void Wu_Refresh() {
   if (httpCode > 0) {
     Serial.println("HTTP code, not 0, size:");
     int len = http.getSize();
+    Serial.println(len);
+    
     // may have to stream that json...
     DynamicJsonBuffer jsonBuffer;
     //http.writeToStream(&Serial);
@@ -202,12 +207,18 @@ void Wu_Refresh() {
 
   http.end();
 
-  Serial.print("Current: ");
-  Serial.println(wu_current_temp);
+  Serial.print("Outside: ");
+  Serial.println(round(wu_current_temp));
   Serial.print("High: ");
   Serial.println(wu_hi_temp);
   Serial.print("Low: ");
   Serial.println(wu_lo_temp);
+
+  Serial.print("Inside: ");
+  if (sht30.get() == 0) {
+    Serial.println(round(sht30.fTemp));
+    Serial.println(round(sht30.humidity));
+  }
 }
 
 
@@ -220,15 +231,15 @@ void Oled_ShowTemps() {
     display.setCursor(0, 0);
     display.setTextSize(1);
     display.setTextColor(WHITE);
-    display.println("T: ");
-    display.setTextSize(2);
-    display.print(sht30.fTemp);
+    //display.println("T: ");
+    //display.setTextSize(2);
+    display.print(round(sht30.fTemp));
     display.println(DEGREES_F);
 
     display.setTextSize(1);
-    display.println("H: ");
-    display.setTextSize(2);
-    display.print(sht30.humidity);
+    //display.println("H: ");
+    //display.setTextSize(2);
+    display.print(round(sht30.humidity));
     display.println("%");
   } else {
     display.println(":(");
@@ -243,7 +254,7 @@ void Oled_ShowTemps() {
   display.println(DEGREES_F);
   
   display.setTextSize(2);
-  display.print(wu_current_temp);
+  display.print(round(wu_current_temp));
   display.println(DEGREES_F);
 
   display.setTextSize(1);
