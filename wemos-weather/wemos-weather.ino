@@ -13,8 +13,9 @@
 #include <ArduinoJson.h>
 // WeMos SHT30 & OLED libs
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+//#include <Adafruit_GFX.h>
+//#include <Adafruit_SSD1306.h>
+#include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
 #include <WEMOS_SHT3X.h>
 
 
@@ -60,11 +61,15 @@ String wu_lo_temp = "";
 // 011110+SA0+RW - 0x3C or 0x3D
 // Address for 128x32 is 0x3C
 // Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
-#define OLED_ADDRESS 0x3C
-#define OLED_RESET 0  // GPIO0
-Adafruit_SSD1306 display(OLED_RESET);
+//#define OLED_ADDRESS 0x3C
+//#define OLED_RESET 0  // GPIO0
+//Adafruit_SSD1306 display(OLED_RESET);
+#define PIN_RESET 255  //
+#define DC_JUMPER 0  // I2C Addres: 0 - 0x3C, 1 - 0x3D
+MicroOLED display(PIN_RESET, DC_JUMPER);  // I2C Example
 //const int MIDDLE_X = display.getLCDWidth() / 2;
-int MIDDLE_X = 0;
+//int MIDDLE_X = 0;
+const int MIDDLE_X = display.getLCDWidth() / 2;
 #define OLED_DELAY_MS 30000
 
 // WeMos SHT
@@ -137,8 +142,11 @@ void setup() {
 
   // OLED setup
   Serial.println("init OLED display");
-  display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
-  MIDDLE_X = display.width() / 2;
+  //display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
+  //MIDDLE_X = display.width() / 2;
+  display.begin();     // Initialize the OLED
+  display.clear(PAGE); // Clear the display's internal memory
+  display.clear(ALL);  // Clear the library's display buffer
 
   // IR sensor setup
   Serial.println("init IR sensor");
@@ -225,18 +233,21 @@ void Wu_Refresh() {
 // OLED
 void Oled_ShowTemps() {
   // Clear the buffer.
-  display.clearDisplay();
+  //display.clearDisplay();
+  display.clear(ALL);
+   // set font type 0, please see declaration in SFE_MicroOLED.cpp
+  display.setFontType(0);
 
   if (sht30.get() == 0) {
     display.setCursor(0, 0);
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
+    //display.setTextSize(1);
+    //display.setTextColor(WHITE);
     //display.println("T: ");
     //display.setTextSize(2);
     display.print(round(sht30.fTemp));
     display.println(DEGREES_F);
 
-    display.setTextSize(1);
+    //display.setTextSize(1);
     //display.println("H: ");
     //display.setTextSize(2);
     display.print(round(sht30.humidity));
@@ -248,23 +259,26 @@ void Oled_ShowTemps() {
   // show WU temps
   //TODO: test starting halfway: 
   display.setCursor(MIDDLE_X, 0);
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
+  //display.setTextColor(WHITE);
+  //display.setTextSize(1);
   display.print(wu_hi_temp);
   display.println(DEGREES_F);
   
-  display.setTextSize(2);
+  //display.setTextSize(2);
   display.print(round(wu_current_temp));
   display.println(DEGREES_F);
 
-  display.setTextSize(1);
+  //display.setTextSize(1);
   display.print(wu_lo_temp);
   display.println(DEGREES_F);
 
-  display.display();
+  //display.display();
+  display.display();   // Display what's in the buffer
 
   delay(OLED_DELAY_MS);
-  display.clearDisplay();
+  //display.clearDisplay();
+  display.clear(PAGE);
+  display.clear(ALL);
 }
 
 
