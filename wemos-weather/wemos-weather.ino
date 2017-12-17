@@ -76,6 +76,8 @@ const int MIDDLE_X = display.getLCDWidth() / 2;
 // 0x44 when bridged or 0x45 unbridged
 #define SHT3X_ADDRESS 0x45
 SHT3X sht30(SHT3X_ADDRESS);
+float sht_temp = 0.0;
+float sht_humid = 0.0;
 
 
 // HC-SR501 Motion Detector
@@ -161,8 +163,10 @@ void loop() {
   Serial.println("IR value: ");
   Serial.println(ir_value);
   if (ir_value == 1) {
-    // get temps from wu
+    // get temps from wu & sht
     Wu_Refresh();
+    Sht_Refresh();
+    
     // show temps
     Oled_ShowTemps();
   }
@@ -182,7 +186,6 @@ File GetFile(String fileName) {
 
 
 // WU
-
 void Wu_Refresh() {
   // GET wu_url
   HTTPClient http;
@@ -221,12 +224,20 @@ void Wu_Refresh() {
   Serial.println(wu_hi_temp);
   Serial.print("Low: ");
   Serial.println(wu_lo_temp);
+}
+
+
+// SHT30 sensor
+void Sht_Refresh() {
+  if (sht30.get() == 0) {
+    sht_temp = sht30.fTemp;
+    sht_humid = sht30.humidity;
+  }
 
   Serial.print("Inside: ");
-  if (sht30.get() == 0) {
-    Serial.println(round(sht30.fTemp));
-    Serial.println(round(sht30.humidity));
-  }
+  Serial.println(round(sht_temp));
+  Serial.print(round(sht_humid));
+  Serial.println("%");
 }
 
 
@@ -235,26 +246,23 @@ void Oled_ShowTemps() {
   // Clear the buffer.
   //display.clearDisplay();
   display.clear(ALL);
+  display.clear(PAGE);
    // set font type 0, please see declaration in SFE_MicroOLED.cpp
   display.setFontType(0);
 
-  if (sht30.get() == 0) {
-    display.setCursor(0, 0);
-    //display.setTextSize(1);
-    //display.setTextColor(WHITE);
-    //display.println("T: ");
-    //display.setTextSize(2);
-    display.print(round(sht30.fTemp));
-    display.println(DEGREES_F);
+  display.setCursor(0, 0);
+  //display.setTextSize(1);
+  //display.setTextColor(WHITE);
+  //display.println("T: ");
+  //display.setTextSize(2);
+  display.print(round(sht_temp));
+  display.println(DEGREES_F);
 
-    //display.setTextSize(1);
-    //display.println("H: ");
-    //display.setTextSize(2);
-    display.print(round(sht30.humidity));
-    display.println("%");
-  } else {
-    display.println(":(");
-  }
+  //display.setTextSize(1);
+  //display.println("H: ");
+  //display.setTextSize(2);
+  display.print(round(sht_humid));
+  display.println("%");
 
   // show WU temps
   //TODO: test starting halfway: 
