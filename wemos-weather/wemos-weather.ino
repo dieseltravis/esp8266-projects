@@ -248,13 +248,16 @@ void Oled_ShowTemps() {
   display.clear(ALL);
   display.clear(PAGE);
    // set font type 0, please see declaration in SFE_MicroOLED.cpp
-  display.setFontType(0);
 
   display.setCursor(0, 0);
+  display.setFontType(0);
+  display.print("In:");
+  display.setCursor(0, 12);
   //display.setTextSize(1);
   //display.setTextColor(WHITE);
   //display.println("T: ");
   //display.setTextSize(2);
+  display.setFontType(1);
   display.print(round(sht_temp));
   display.println(DEGREES_F);
 
@@ -269,16 +272,25 @@ void Oled_ShowTemps() {
   display.setCursor(MIDDLE_X, 0);
   //display.setTextColor(WHITE);
   //display.setTextSize(1);
-  display.print(wu_hi_temp);
-  display.println(DEGREES_F);
+  display.setFontType(0);
+  display.print("Out:");
   
   //display.setTextSize(2);
+  display.setCursor(MIDDLE_X, 12);
+  display.setFontType(1);
   display.print(round(wu_current_temp));
   display.println(DEGREES_F);
 
   //display.setTextSize(1);
+  display.setCursor(MIDDLE_X, 30);
+  display.setFontType(0);
+  display.print("H");
+  display.print(wu_hi_temp);
+  display.print(DEGREES_F);
+  display.setCursor(MIDDLE_X, 40);
+  display.print("L");
   display.print(wu_lo_temp);
-  display.println(DEGREES_F);
+  display.print(DEGREES_F);
 
   //display.display();
   display.display();   // Display what's in the buffer
