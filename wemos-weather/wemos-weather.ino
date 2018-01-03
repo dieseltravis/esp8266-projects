@@ -1,31 +1,24 @@
-#include <FS.h> //this needs to be first
+#include <FS.h>
 #include <math.h>
-// ESP8266WiFi - Version: Latest
 #include <ESP8266WiFi.h>
-// DNSServer - Version: Latest
-//#include <DNSServer.h>
 #include <ESP8266HTTPClient.h>
-// ESP8266WebServer - Version: Latest
 #include <ESP8266WebServer.h>
-// WiFiManager - Version: Latest
 #include <WiFiManager.h>
 // JSON parsing for Arduino
 #include <ArduinoJson.h>
 // WeMos SHT30 & OLED libs
 #include <Wire.h>
-//#include <Adafruit_GFX.h>
-//#include <Adafruit_SSD1306.h>
-#include <SFE_MicroOLED.h>  // Include the SFE_MicroOLED library
+#include <SFE_MicroOLED.h>
 #include <WEMOS_SHT3X.h>
 
 
-// web server
+// TODO: web server
 //std::unique_ptr<ESP8266WebServer> wwwServer;
 //#define HTML_FILE "/index.html"
 
 #define CONFIG  "/config.json"
 
-//°
+// '°' doesn't render nicely :-(
 #define DEGREES_F  "F"
 
 // wunderground constants * params
@@ -39,6 +32,11 @@ const String WU_BESTFCT = "bestfct:";
 // features & format of this code
 const String WU_FEATURES = "conditions/forecast";
 const String WU_FORMAT = "json";
+
+// actually 500, but leave room
+const int WU_API_DAILY_LIMIT = 400;
+const int WU_API_DELAYMS = (24 * 60 * 60 * 1000) / WU_API_DAILY_LIMIT;
+int wu_lastms = millis() - WU_API_DELAYMS;
 
 // wunderground config params will be overwritten from CONFIG json file above
 String wu_key = "1234567890abcdef";
@@ -56,21 +54,13 @@ String wu_lo_temp = "";
 
 
 // WeMos OLED
-// SSD1306_SWITCHCAPVCC 0x2
-// SSD1306_I2C_ADDRESS:
-// 011110+SA0+RW - 0x3C or 0x3D
-// Address for 128x32 is 0x3C
-// Address for 128x64 is 0x3D (default) or 0x3C (if SA0 is grounded)
-//#define OLED_ADDRESS 0x3C
-//#define OLED_RESET 0  // GPIO0
-//Adafruit_SSD1306 display(OLED_RESET);
 #define PIN_RESET 255  //
 #define DC_JUMPER 0  // I2C Addres: 0 - 0x3C, 1 - 0x3D
 MicroOLED display(PIN_RESET, DC_JUMPER);  // I2C Example
 //const int MIDDLE_X = display.getLCDWidth() / 2;
 //int MIDDLE_X = 0;
 const int MIDDLE_X = display.getLCDWidth() / 2;
-#define OLED_DELAY_MS 30000
+#define OLED_DELAY_MS 60000
 
 // WeMos SHT
 // 0x44 when bridged or 0x45 unbridged
@@ -144,8 +134,6 @@ void setup() {
 
   // OLED setup
   Serial.println("init OLED display");
-  //display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDRESS);
-  //MIDDLE_X = display.width() / 2;
   display.begin();     // Initialize the OLED
   display.clear(PAGE); // Clear the display's internal memory
   display.clear(ALL);  // Clear the library's display buffer
@@ -156,15 +144,20 @@ void setup() {
 }
 
 void loop() {
-  // handle web requests
+  // TODO: handle web requests
   //wwwServer->handleClient();
 
   ir_value = digitalRead(IR_PIN);
-  Serial.println("IR value: ");
-  Serial.println(ir_value);
+//  Serial.println("IR value: ");
+//  Serial.println(ir_value);
   if (ir_value == 1) {
     // get temps from wu & sht
-    Wu_Refresh();
+
+    // check last refresh first to not exceed api:
+    if (millis() - wu_lastms > WU_API_DELAYMS) {
+      Wu_Refresh();
+      wu_lastms = millis();
+    }
     Sht_Refresh();
     
     // show temps
@@ -191,20 +184,18 @@ void Wu_Refresh() {
   HTTPClient http;
   http.begin(wu_url);
   
-  Serial.println("GET url with code:");
+//  Serial.println("GET url with code:");
   int httpCode = http.GET();
-  Serial.println(httpCode);
+//  Serial.println(httpCode);
 
   if (httpCode > 0) {
-    Serial.println("HTTP code, not 0, size:");
+//    Serial.println("HTTP code, not 0, size:");
     int len = http.getSize();
-    Serial.println(len);
+//    Serial.println(len);
     
-    // may have to stream that json...
     DynamicJsonBuffer jsonBuffer;
-    //http.writeToStream(&Serial);
     JsonObject& json = jsonBuffer.parseObject(http.getString());
-    // TODO: maybe use openweathermap instead?
+
     if (json.success()) {
       // WU data values to get:
       // data.current_observation.temp_f (float)
@@ -218,12 +209,12 @@ void Wu_Refresh() {
 
   http.end();
 
-  Serial.print("Outside: ");
-  Serial.println(round(wu_current_temp));
-  Serial.print("High: ");
-  Serial.println(wu_hi_temp);
-  Serial.print("Low: ");
-  Serial.println(wu_lo_temp);
+//  Serial.print("Outside: ");
+//  Serial.println(round(wu_current_temp));
+//  Serial.print("High: ");
+//  Serial.println(wu_hi_temp);
+//  Serial.print("Low: ");
+//  Serial.println(wu_lo_temp);
 }
 
 
@@ -234,69 +225,57 @@ void Sht_Refresh() {
     sht_humid = sht30.humidity;
   }
 
-  Serial.print("Inside: ");
-  Serial.println(round(sht_temp));
-  Serial.print(round(sht_humid));
-  Serial.println("%");
+//  Serial.print("Inside: ");
+//  Serial.println(round(sht_temp));
+//  Serial.print(round(sht_humid));
+//  Serial.println("%");
 }
 
 
 // OLED
 void Oled_ShowTemps() {
   // Clear the buffer.
-  //display.clearDisplay();
   display.clear(ALL);
   display.clear(PAGE);
-   // set font type 0, please see declaration in SFE_MicroOLED.cpp
 
+  // show sensor temps
   display.setCursor(0, 0);
   display.setFontType(0);
   display.print("In:");
+
   display.setCursor(0, 12);
-  //display.setTextSize(1);
-  //display.setTextColor(WHITE);
-  //display.println("T: ");
-  //display.setTextSize(2);
   display.setFontType(1);
   display.print(round(sht_temp));
-  display.println(DEGREES_F);
+  display.print(DEGREES_F);
 
-  //display.setTextSize(1);
-  //display.println("H: ");
-  //display.setTextSize(2);
+  display.setCursor(0, 28);
   display.print(round(sht_humid));
-  display.println("%");
+  display.print("%");
 
   // show WU temps
-  //TODO: test starting halfway: 
   display.setCursor(MIDDLE_X, 0);
-  //display.setTextColor(WHITE);
-  //display.setTextSize(1);
   display.setFontType(0);
   display.print("Out:");
   
-  //display.setTextSize(2);
   display.setCursor(MIDDLE_X, 12);
   display.setFontType(1);
   display.print(round(wu_current_temp));
-  display.println(DEGREES_F);
+  display.print(DEGREES_F);
 
-  //display.setTextSize(1);
-  display.setCursor(MIDDLE_X, 30);
+  display.setCursor(MIDDLE_X, 29);
   display.setFontType(0);
   display.print("H");
   display.print(wu_hi_temp);
   display.print(DEGREES_F);
+
   display.setCursor(MIDDLE_X, 40);
   display.print("L");
   display.print(wu_lo_temp);
   display.print(DEGREES_F);
 
-  //display.display();
-  display.display();   // Display what's in the buffer
+  display.display();
 
   delay(OLED_DELAY_MS);
-  //display.clearDisplay();
   display.clear(PAGE);
   display.clear(ALL);
 }
