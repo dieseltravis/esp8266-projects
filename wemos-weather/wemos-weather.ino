@@ -62,6 +62,8 @@ MicroOLED display(PIN_RESET, DC_JUMPER);  // I2C Example
 const int MIDDLE_X = display.getLCDWidth() / 2;
 #define OLED_DELAY_MS 60000
 
+//TODO: new OLED
+
 // WeMos SHT
 // 0x44 when bridged or 0x45 unbridged
 #define SHT3X_ADDRESS 0x45
@@ -69,6 +71,7 @@ SHT3X sht30(SHT3X_ADDRESS);
 float sht_temp = 0.0;
 float sht_humid = 0.0;
 
+//TODO: new SHT
 
 // HC-SR501 Motion Detector
 //TODO: test HC-SR501 pin after shields mounted
