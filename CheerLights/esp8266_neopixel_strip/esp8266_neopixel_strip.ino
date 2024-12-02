@@ -25,18 +25,6 @@
   #include <ESP8266WiFi.h>
 #elif defined(ESP32)
   #include <WiFi.h>
-#elif defined(ARDUINO_SAMD_MKR1000)
-  // For Arduino MKR1000 using WiFi101 library
-  #include <WiFi101.h>
-#elif defined(ARDUINO_SAMD_MKRWIFI1010)
-  // For Arduino MKR WiFi 1010 using WiFiNINA library
-  #include <WiFiNINA.h>
-#elif defined(ARDUINO_AVR_UNO_WIFI_REV2)
-  // For Arduino Uno WiFi Rev2
-  #include <WiFiNINA.h>
-#elif defined(ARDUINO_ARCH_SAMD)
-  // For other SAMD boards
-  #include <WiFiNINA.h>
 #else
   #include <WiFi.h>
 #endif
@@ -149,6 +137,9 @@ void loop() {
     lastColor = color;
   }
 
+	bool isPurple = (r == 128 && g == 0 && b == 128);
+	// TODO: use ColorHSV(h, s, v) and modulate V instead of setBrightness
+	// pixels.fill(pixels.Color(r, g, b), 0, NUMPIXELS);
   // breathe brightness a bit:
   int last_bright = MAX_BRIGHT;
   for (int j = 0; j < 5; j++) {
@@ -156,7 +147,7 @@ void loop() {
     for (int i = 0; i < 20; i++) {
       last_bright -= 1;
       // only when not purple
-      if (!(r == 128 && g == 0 && b == 128)) {
+      if (!isPurple) {
         pixels.setBrightness(last_bright);
         pixels.show();
       }
@@ -166,7 +157,7 @@ void loop() {
     for (int i = 0; i < 20; i++) {
       last_bright += 1;
       // only when not purple
-      if (!(r == 128 && g == 0 && b == 128)) {
+      if (!isPurple) {
         pixels.setBrightness(last_bright);
         pixels.show();
       }
