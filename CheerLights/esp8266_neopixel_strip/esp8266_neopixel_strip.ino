@@ -1,15 +1,10 @@
 /*
  Set Latest CheerLights Color on a WS2812 NeoPixel Strip via ESP8266 Wi-Fi
-
- This sketch periodically checks the CheerLights color that is stored in
- ThingSpeak channel 1417 and sets the color of a WS2812-based NeoPixel strip.
-
  Requirements:
 
    * ESP8266 Wi-Fi Device
    * Arduino 1.8.8+ IDE
    * Additional Boards URL: http://arduino.esp8266.com/stable/package_esp8266com_index.json
-   * Library: ThingSpeak by MathWorks
    * Library: Adafruit NeoPixel by Adafruit
 
  Setup Wi-Fi:
@@ -20,19 +15,37 @@
 
  Created: Dec 19, 2018 by Hans Scharler (http://nothans.com)
  Remix with soft animations by Travis Hardiman
+ Updated to use Cheerlights library and don't adjust brightness when purple, because before adjusting brightness when purple would cause the LEDs to just turn off
 */
 
-#include <ESP8266WiFi.h>
 #include <Adafruit_NeoPixel.h>
-#include <ThingSpeak.h>
+
+// Include the correct WiFi library based on the board
+#if defined(ESP8266)
+  #include <ESP8266WiFi.h>
+#elif defined(ESP32)
+  #include <WiFi.h>
+#elif defined(ARDUINO_SAMD_MKR1000)
+  // For Arduino MKR1000 using WiFi101 library
+  #include <WiFi101.h>
+#elif defined(ARDUINO_SAMD_MKRWIFI1010)
+  // For Arduino MKR WiFi 1010 using WiFiNINA library
+  #include <WiFiNINA.h>
+#elif defined(ARDUINO_AVR_UNO_WIFI_REV2)
+  // For Arduino Uno WiFi Rev2
+  #include <WiFiNINA.h>
+#elif defined(ARDUINO_ARCH_SAMD)
+  // For other SAMD boards
+  #include <WiFiNINA.h>
+#else
+  #include <WiFi.h>
+#endif
+
+// Include the CheerLights library and instantiate the CheerLights object
+#include <CheerLights.h>
+CheerLights CheerLights;
+
 #include "secrets.h"
-
-unsigned long cheerLightsChannelNumber = 1417;
-
-char ssid[] = SECRET_SSID;   // your network SSID (name)
-char pass[] = SECRET_PASS;   // your network password
-int keyIndex = 0;            // your network key index number (needed only for WEP)
-WiFiClient  client;
 
 // https://www.wemos.cc/en/latest/d1/d1_mini_pro.html
 // D2  IO, SDA   GPIO4
@@ -43,8 +56,11 @@ Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, RGBPIN, NEO_GRB + NEO_KH
 // max brightness to use
 const uint8_t MAX_BRIGHT = 51;
 
-void setup() {
+String color;
+String lastColor = "black";
+uint8_t r, g, b, lr = 0, lg = 0, lb = 0;
 
+void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println("\n");
@@ -58,7 +74,7 @@ void setup() {
   Serial.print("ESP Flash ID: ");
   Serial.println(ESP.getFlashChipId());
   uint8_t id[8];
-  // esp8266
+#if defined(ESP8266)
   uint32_t chipid = ESP.getChipId();
   id[0] = 0;
   id[1] = 0;
@@ -68,8 +84,7 @@ void setup() {
   id[5] = chipid >> 16;
   id[6] = chipid >> 8;
   id[7] = chipid;
-  // esp 32
-  /*
+#elif defined(ESP32)
   uint64_t chipid = ESP.getEfuseMac();
   id[0] = 0;
   id[1] = 0;
@@ -79,7 +94,7 @@ void setup() {
   id[5] = chipid >> 24;
   id[6] = chipid >> 32;
   id[7] = chipid >> 40;
-  */
+#endif
   Serial.print("ESP Chip ID: ");
   Serial.println(chipid);
   Serial.print(id[4]);
@@ -109,123 +124,85 @@ void setup() {
   // Connect or reconnect to WiFi
   Serial.print("Attempting to connect to SSID: ");
   Serial.println(SECRET_SSID);
-  Serial.print("ESP MAC address: ");
-  Serial.println(WiFi.macAddress());
-  // Connect to WPA/WPA2 network. Change this line if using open or WEP network
-  WiFi.begin(ssid, pass);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(50);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(100);
-    Serial.print(".");
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(50);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(500);
-    Serial.print(".");
-    Serial.print(WiFi.status());
-  }
+
+  // Initialize the CheerLights library
+  CheerLights.begin(SECRET_SSID, SECRET_PASS);
+    
   Serial.println("\nConnected!");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  
-  ThingSpeak.begin(client);
+
   pixels.setBrightness(MAX_BRIGHT); // set brightness of the strip
+
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
-// Define the supported CheerLights colors and their RGB values
-String colorName[] = {"red", "pink", "green", "blue", "cyan", "white", "warmwhite", "oldlace", "purple", "magenta", "yellow", "orange"};
-
-int colorRGB[][3] = { 255,   0,   0,  // "red"
-                      255, 192, 203,  // "pink"
-                        0, 255,   0,  // "green"
-                        0,   0, 255,  // "blue"
-                        0, 255, 255,  // "cyan"
-                      255, 255, 255,  // "white"
-                      255, 223, 223,  // "warmwhite"
-                      255, 223, 223,  // "oldlace"
-                      128,   0, 128,  // "purple"
-                      255,   0, 255,  // "magenta"
-                      255, 255,   0,  // "yellow"
-                      255, 165,   0}; // "orange"
-String color;
-String lastColor = "black";
-
 void loop() {
-
-  int statusCode = 0;
-  
-  // Read CheerLights color from ThingSpeak channel
-  color = ThingSpeak.readStringField(cheerLightsChannelNumber, 1);
-
-  // Check the status of the read operation to see if it was successful
-  statusCode = ThingSpeak.getLastReadStatus();
-
-  if (statusCode == 200) {
-    Serial.println("CheerLights Color: " + color);
-    if (lastColor != color) {
-      Serial.println("changing from " + lastColor + " to " + color);
-      setColor(color);
-      lastColor = color;
-    }
-  }
-  else {
-    Serial.println("Problem reading channel. HTTP error code: " + String(statusCode));
-    // todo: error blink
+  CheerLights.getCurrentColor();
+  Serial.print("Current CheerLights Color: ");
+  color = CheerLights.currentColorName();
+  Serial.println(color);
+        
+  if (lastColor != color) {
+    Serial.println("changing from " + lastColor + " to " + color);
+    setColors(CheerLights.currentRed(), CheerLights.currentGreen(), CheerLights.currentBlue());
+    lastColor = color;
   }
 
-  // Wait 20 seconds before checking again
-  // regular delay:
-  //delay(20000);
-  // breathe a bit instead:
+  // breathe brightness a bit:
   int last_bright = MAX_BRIGHT;
   for (int j = 0; j < 5; j++) {
     Serial.print('.');
     for (int i = 0; i < 20; i++) {
       last_bright -= 1;
-      pixels.setBrightness(last_bright);
-      pixels.show();
+      // only when not purple
+      if (!(r == 128 && g == 0 && b == 128)) {
+        pixels.setBrightness(last_bright);
+        pixels.show();
+      }
       delay(100);
     }
     Serial.print('.');
     for (int i = 0; i < 20; i++) {
       last_bright += 1;
-      pixels.setBrightness(last_bright);
-      pixels.show();
+      // only when not purple
+      if (!(r == 128 && g == 0 && b == 128)) {
+        pixels.setBrightness(last_bright);
+        pixels.show();
+      }
       delay(100);
     }
   }
   Serial.println('.');
 }
 
-int r, g, b, lr = 0, lg = 0, lb = 0;
+void setColors(uint8_t red, uint8_t green, uint8_t blue) {
+  // Set the color of each NeoPixel on the strip
+  r = red;
+  g = green;
+  b = blue;
 
-void setColor(String color) {
-  // Loop through the list of colors to find the matching color
-  for (int colorIndex = 0; colorIndex < 12; colorIndex++) {
-    if (color == colorName[colorIndex]) {
-      // Set the color of each NeoPixel on the strip
-      r = colorRGB[colorIndex][0];
-      g = colorRGB[colorIndex][1];
-      b = colorRGB[colorIndex][2];
-
-      updateRGB();
-    }
-  }
+  Serial.print("Setting RGB to: ");
+  Serial.print(r);
+  Serial.print(", ");
+  Serial.print(g);
+  Serial.print(", ");
+  Serial.print(b);
+  Serial.println(".");
+  
+  updateRGB();
 }
 
 void updateRGB() {
   // delta values
-  int dr = (r == lr) ? 0 : (r - lr > 0) ? 1 : -1;
-  int dg = (g == lg) ? 0 : (g - lg > 0) ? 1 : -1;
-  int db = (b == lb) ? 0 : (b - lb > 0) ? 1 : -1;
+  uint8_t dr = (r == lr) ? 0 : (r - lr > 0) ? 1 : -1;
+  uint8_t dg = (g == lg) ? 0 : (g - lg > 0) ? 1 : -1;
+  uint8_t db = (b == lb) ? 0 : (b - lb > 0) ? 1 : -1;
 
-  // current values
-  int cr = lr;
-  int cg = lg;
-  int cb = lb;
+  // current values start at last values
+  uint8_t cr = lr;
+  uint8_t cg = lg;
+  uint8_t cb = lb;
 
   // loop until all equal
   while (cr != r || cg != g || cb != b) {
