@@ -15,7 +15,8 @@
 
  Created: Dec 19, 2018 by Hans Scharler (http://nothans.com)
  Remix with soft animations by Travis Hardiman
- Updated to use Cheerlights library and don't adjust brightness when purple, because before adjusting brightness when purple would cause the LEDs to just turn off
+ Updated to use Cheerlights library
+ Updated to use HSV color values to animate brightness
 */
 
 #include <Adafruit_NeoPixel.h>
