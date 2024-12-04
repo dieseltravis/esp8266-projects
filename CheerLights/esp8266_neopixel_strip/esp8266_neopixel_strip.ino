@@ -48,6 +48,33 @@ String color;
 String lastColor = "black";
 uint8_t r, g, b, lr = 0, lg = 0, lb = 0;
 
+// HSV
+uint16_t _colorHue;
+uint8_t _colorSat;
+uint8_t _colorVal;
+
+// Map the color name to a HSV value
+static const struct {
+  const char* name;
+  uint16_t hue;
+  uint8_t sat;
+  uint8_t val;
+} colorMapHSV[] = {
+  {"red", 0, 255, 255},
+  {"green", 21845, 255, 255},
+  {"blue", 43690, 255, 255},
+  {"cyan", 32767, 255, 255},
+  {"white", 0, 0, 255},
+  {"warmwhite", 7123, 23, 253},
+  {"oldlace", 7123, 23, 253},
+  {"magenta", 54612, 255, 255},
+  {"yellow", 10922, 255, 255},
+  {"orange", 6954, 255, 255},
+  {"purple", 54612, 255, 128},
+  {"pink", 63627, 63, 255},
+  {"black", 0, 0, 0}
+};
+
 void setup() {
   Serial.begin(115200);
   delay(1000);
@@ -135,33 +162,40 @@ void loop() {
     Serial.println("changing from " + lastColor + " to " + color);
     setColors(CheerLights.currentRed(), CheerLights.currentGreen(), CheerLights.currentBlue());
     lastColor = color;
+
+    for (const auto& colorHSV : colorMapHSV) {
+      if (strcasecmp(CheerLights.currentColorName(), colorHSV.name) == 0) {
+        _colorHue = colorHSV.hue;
+        _colorSat = colorHSV.sat;
+        _colorVal = colorHSV.val;
+        Serial.print('H');
+        Serial.print(_colorHue);
+        Serial.print('\t');
+        Serial.print('S');
+        Serial.print(_colorSat);
+        Serial.print('\t');
+        Serial.print('V');
+        Serial.println(_colorVal);
+        break;
+      }
+    }
   }
 
-	bool isPurple = (r == 128 && g == 0 && b == 128);
-	// TODO: use ColorHSV(h, s, v) and modulate V instead of setBrightness
-	// pixels.fill(pixels.Color(r, g, b), 0, NUMPIXELS);
-  // breathe brightness a bit:
-  int last_bright = MAX_BRIGHT;
+  int last_bright = _colorVal;
   for (int j = 0; j < 5; j++) {
     Serial.print('.');
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 64; i++) {
       last_bright -= 1;
-      // only when not purple
-      if (!isPurple) {
-        pixels.setBrightness(last_bright);
-        pixels.show();
-      }
-      delay(100);
+      pixels.fill(pixels.ColorHSV(_colorHue, _colorSat, last_bright), 0, NUMPIXELS);
+      pixels.show();
+      delay(20);
     }
     Serial.print('.');
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 64; i++) {
       last_bright += 1;
-      // only when not purple
-      if (!isPurple) {
-        pixels.setBrightness(last_bright);
-        pixels.show();
-      }
-      delay(100);
+      pixels.fill(pixels.ColorHSV(_colorHue, _colorSat, last_bright), 0, NUMPIXELS);
+      pixels.show();
+      delay(20);
     }
   }
   Serial.println('.');
